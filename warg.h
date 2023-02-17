@@ -3,6 +3,15 @@
 
 #include <stdio.h>
 
+// TODO for future use (line wrapping)
+#ifndef WARG_MAX_LINE_LENGTH
+#define WARG_MAX_LINE_LENGTH 120
+#endif
+
+#ifndef WARG_MAX_FLAG_STRING_LENGTH
+#define WARG_MAX_FLAG_STRING_LENGTH 30
+#endif
+
 typedef struct warg_opt
 {
   const char *longopt;

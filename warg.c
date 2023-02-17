@@ -1,12 +1,12 @@
 #include "warg.h"
 
-#ifndef MAX
-#define MAX(a, b) ((a > b) ? a : b)
+#ifndef max
+#define max(a, b) ((a > b) ? a : b)
 #endif
 
-// TODO for future use (line wrapping)
-#define MAX_LINE_LENGTH 120
-#define MAX_LONGEST_PREAMBLE 
+#ifndef min
+#define min(a, b) ((a < b) ? a : b)
+#endif
 
 static int
 warg_flag_string (char *buf, const warg_opt *opt)
@@ -57,14 +57,19 @@ warg_print_help (FILE *out, const warg_context *ctx)
   // TODO alphabetize?
   for (int i = 0; ctx->opts[i].longopt; i++)
     {
-      longest = MAX (longest, warg_flag_string (0, &ctx->opts[i]));
+      longest = max (longest, warg_flag_string (0, &ctx->opts[i]));
     }
+
+  longest = min (longest, WARG_MAX_FLAG_STRING_LENGTH);
 
   for (int i = 0; ctx->opts[i].longopt; i++)
     {
       int len = warg_flag_string (buf, &ctx->opts[i]);
-      // (ctx->longest_preamble-len),
-      fprintf (out, "  %-*s    %s", longest, buf, ctx->opts[i].description);
+
+      fprintf (out, "  %-*s", longest, buf);
+      if (len > longest)
+        fprintf (out, "\n%-*s  ", longest, "  ");
+      printf ("%s", ctx->opts[i].description);
       if (ctx->opts[i].defaultarg)
         {
           fprintf (out, " (default: %s)", ctx->opts[i].defaultarg);
