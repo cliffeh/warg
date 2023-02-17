@@ -16,7 +16,7 @@ typedef struct warg_context
 {
   const char *progname;
   const warg_opt *opts;
-  int argc, curr, longest_preamble /* for printing */;
+  int argc, curr;
   const char **argv;
 } warg_context;
 
