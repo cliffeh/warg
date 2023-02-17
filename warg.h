@@ -12,6 +12,16 @@
 #define WARG_MAX_FLAG_STRING_LENGTH 30
 #endif
 
+// can be set to 'h' if you like
+#ifndef WARG_HELP_CHAR
+#define WARG_HELP_CHAR '?'
+#endif
+
+#define WARG_AUTOHELP                                                         \
+  {                                                                           \
+    "help", WARG_HELP_CHAR, 0, 0, "show this help message"                    \
+  }
+
 typedef struct warg_opt
 {
   const char *longopt;

@@ -14,6 +14,7 @@ main (int argc, const char *argv[])
           { "outfile", 'o', "FILE", "-", "write output to FILE" },
           { "this-is-a-really-absurdly-unnecessarily-long-flag-name", 'T', 0,
             0, "set all of the doinklets to max frobulation" },
+          WARG_AUTOHELP,
           0 };
 
   warg_context_init (&option_context, option_table, argc, argv);
