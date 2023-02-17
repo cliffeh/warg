@@ -1,6 +1,7 @@
 #ifndef __WARG_H
 #define __WARG_H 1
 
+#include "config.h"
 #include <stdio.h>
 
 // TODO for future use (line wrapping)
@@ -17,10 +18,21 @@
 #define WARG_HELP_CHAR '?'
 #endif
 
-#define WARG_AUTOHELP                                                         \
+#define WARG_AUTOHELP_HELP                                                    \
   {                                                                           \
-    "help", WARG_HELP_CHAR, 0, 0, "show this help message"                    \
+    "help", WARG_HELP_CHAR, 0, 0, "show this help message and exit"           \
   }
+
+#define WARG_AUTOHELP_VERSION                                                 \
+  {                                                                           \
+    "version", 0, 0, 0, "show version information and exit"                   \
+  }
+
+#ifdef PACKAGE_STRING
+#define WARG_AUTOHELP WARG_AUTOHELP_HELP, WARG_AUTOHELP_VERSION
+#else
+#define WARG_AUTOHELP WARG_AUTOHELP_HELP
+#endif
 
 typedef struct warg_opt
 {

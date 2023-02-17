@@ -15,7 +15,12 @@ warg_flag_string (char *buf, const warg_opt *opt)
   char tmp[1024];
   char *p = buf ? buf : tmp;
 
-  len += sprintf (p, "-%c, --%s", opt->shortopt, opt->longopt);
+  // there will always be a longopt, there may not always be a shortopt
+  if (opt->shortopt)
+    len += sprintf (p + len, "-%c, --%s", opt->shortopt, opt->longopt);
+  else
+    len += sprintf (p + len, "    --%s", opt->longopt);
+
   if (opt->argname)
     {
       if (*opt->argname == '?')
