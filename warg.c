@@ -54,7 +54,6 @@ warg_print_help (FILE *out, const warg_context *ctx)
   fprintf (out, "Usage: %s [OPTION...]\n", ctx->progname);
   fprintf (out, "Options:\n");
 
-  // TODO alphabetize?
   for (int i = 0; ctx->opts[i].longopt; i++)
     {
       longest = max (longest, warg_flag_string (0, &ctx->opts[i]));
