@@ -1,7 +1,7 @@
 #include "warg.h"
 
 int
-main (int argc, char *argv[])
+main (int argc, const char *argv[])
 {
   warg_context option_context;
   warg_opt option_table[] = { { "infile", 'i', "read input from FILE" },
