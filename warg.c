@@ -80,6 +80,12 @@ warg_context_init (warg_context *ctx, const warg_opt *opts, int argc,
   return 0;
 }
 
+const char *
+warg_current_option (warg_context *ctx)
+{
+  return ctx->ptr;
+}
+
 int
 warg_next_option (warg_context *ctx)
 {
@@ -101,7 +107,7 @@ warg_next_option (warg_context *ctx)
     }
 
   if (*ctx->ptr == '-')
-    { // we have some kind of an option
+    { // we have an option
       ctx->ptr++;
       if (*ctx->ptr == '-')
         { // either a long option or a stop directive
@@ -113,21 +119,27 @@ warg_next_option (warg_context *ctx)
             }
           else
             { // longopt
-              // TODO standardize on some option name
-              // length limit?
+              // TODO standardize on length limit?
               char longoptname[1024];
               int i = 0;
               for (const char *p = ctx->ptr; *p && *p != '='; p++)
                 {
                   longoptname[i++] = *p;
                 }
-              longoptname[i] = 0; // null terminate
+              longoptname[i] = 0;
 
               const warg_opt *opt = warg_find_longopt (ctx, longoptname);
               if (!opt)
                 {
-                  // TODO update pointers and such
+                  ctx->ptr -= 2;
                   return WARG_UNKNOWN_OPTION;
+                }
+
+              // now that we've located the option, we can figure out what
+              // we're supposed to do with it
+              ctx->ptr += strlen (longoptname);
+              if (*ptr == '=')
+                { // we have an argument
                 }
             }
         }
@@ -167,7 +179,7 @@ warg_print_help (FILE *out, const warg_context *ctx)
       fprintf (out, "  %-*s", longest, buf);
       if (len > longest)
         fprintf (out, "\n%-*s  ", longest, "  ");
-      printf ("%s", ctx->opts[i].description);
+      fprintf (out, "%s", ctx->opts[i].description);
       if (ctx->opts[i].defaultarg)
         {
           fprintf (out, " (default: %s)", ctx->opts[i].defaultarg);

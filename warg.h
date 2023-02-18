@@ -56,6 +56,7 @@ typedef struct warg_context
 
 int warg_context_init (warg_context *ctx, const warg_opt *opts, int argc,
                        const char *argv[]);
+const char *warg_current_option(warg_context *ctx);
 int warg_next_option (warg_context *ctx);
 int warg_print_help (FILE *out, const warg_context *ctx);
 

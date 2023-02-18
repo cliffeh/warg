@@ -26,7 +26,7 @@ main (int argc, const char *argv[])
         {
         case WARG_UNKNOWN_OPTION:
           {
-            fprintf (stderr, "error: unknown option\n");
+            fprintf (stderr, "error: unknown option: %s\n", warg_current_option(&option_context));
             warg_print_help (stderr, &option_context);
             exit (1);
           }
