@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#define WARG_UNKNOWN_OPTION -2
+
 // TODO for future use (line wrapping)
 #ifndef WARG_MAX_LINE_LENGTH
 #define WARG_MAX_LINE_LENGTH 120
@@ -49,12 +51,12 @@ typedef struct warg_context
   int argc, curr, stop;
   const char **argv;
   const char *ptr;
-  const char *currvalue;
+  char *err;
 } warg_context;
 
 int warg_context_init (warg_context *ctx, const warg_opt *opts, int argc,
                        const char *argv[]);
-int warg_next_arg (warg_context *ctx);
+int warg_next_option (warg_context *ctx);
 int warg_print_help (FILE *out, const warg_context *ctx);
 
 #endif

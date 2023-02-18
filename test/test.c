@@ -1,4 +1,5 @@
 #include "../warg.h"
+#include <stdlib.h>
 
 int
 main (int argc, const char *argv[])
@@ -19,12 +20,20 @@ main (int argc, const char *argv[])
 
   warg_context_init (&option_context, option_table, argc, argv);
 
-  while ((rc = warg_next_arg (&option_context)) != -1)
+  while ((rc = warg_next_option (&option_context)) != -1)
     {
-      printf ("arg found: %c\n", rc);
+      switch (rc)
+        {
+        case WARG_UNKNOWN_OPTION:
+          {
+            fprintf (stderr, "error: unknown option\n");
+            warg_print_help (stderr, &option_context);
+            exit (1);
+          }
+        }
     }
 
-  warg_print_help (stdout, &option_context);
+  // warg_print_help (stdout, &option_context);
 
   return 0;
 }

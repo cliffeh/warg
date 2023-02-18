@@ -11,11 +11,11 @@
 #endif
 
 static const warg_opt *
-warg_find_longopt (const warg_context *ctx, const char *longopt, int len)
+warg_find_longopt (const warg_context *ctx, const char *longoptname)
 {
   for (int i = 0; ctx->opts[i].longopt; i++)
     {
-      if (strncmp (longopt, ctx->opts[i].longopt, len) == 0)
+      if (strcmp (longoptname, ctx->opts[i].longopt) == 0)
         return &ctx->opts[i];
     }
   return 0;
@@ -71,41 +71,68 @@ warg_context_init (warg_context *ctx, const warg_opt *opts, int argc,
 
   // TODO can we always assume that argv[0] is progname?
   ctx->stop = 0;
-  ctx->curr = 1;
-  if (argc > 1)
-    ctx->ptr = ctx->argv[1];
-  else
-    ctx->ptr = 0;
+  ctx->curr = 0;
+  // initialize ctx->ptr to the null character at the end of the program name
+  ctx->ptr = argv[0];
+  while (*ctx->ptr)
+    ctx->ptr++;
 
   return 0;
 }
 
 int
-warg_next_arg (warg_context *ctx)
+warg_next_option (warg_context *ctx)
 {
-  if (!ctx->ptr)
+  if (ctx->stop)
     return -1;
 
-  if (!ctx->stop && *ctx->ptr == '-')
+  if (!*ctx->ptr)
     {
+      ctx->curr++;
+      if (ctx->curr >= ctx->argc)
+        { // we're done!
+          ctx->stop = 1;
+          return -1;
+        }
+      else
+        { // advance our pointer
+          ctx->ptr = ctx->argv[ctx->curr];
+        }
+    }
+
+  if (*ctx->ptr == '-')
+    { // we have some kind of an option
       ctx->ptr++;
       if (*ctx->ptr == '-')
-        {
+        { // either a long option or a stop directive
           ctx->ptr++;
-          if (*ctx->ptr == 0)
-            {
-              // -- means stop processing options
+          if (!*ctx->ptr)
+            { // -- means stop processing options
               ctx->stop = 1;
               return -1;
             }
-          int len = 0;
-          for (const char *p = ctx->ptr; *p && *p != '='; p++)
-            len++;
-          const warg_opt *opt = warg_find_longopt (ctx, ctx->ptr, len);
-          printf("found longopt: %s\n", opt->longopt);
+          else
+            { // longopt
+              // TODO standardize on some option name
+              // length limit?
+              char longoptname[1024];
+              int i = 0;
+              for (const char *p = ctx->ptr; *p && *p != '='; p++)
+                {
+                  longoptname[i++] = *p;
+                }
+              longoptname[i] = 0; // null terminate
+
+              const warg_opt *opt = warg_find_longopt (ctx, longoptname);
+              if (!opt)
+                {
+                  // TODO update pointers and such
+                  return WARG_UNKNOWN_OPTION;
+                }
+            }
         }
       else
-        {
+        { // shortopt
           const warg_opt *opt = warg_find_shortopt (ctx, *(ctx->ptr + 1));
         }
     }
