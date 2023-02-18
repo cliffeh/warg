@@ -47,8 +47,10 @@ typedef struct warg_context
 {
   const char *progname;
   const warg_opt *opts;
-  int argc, curr;
+  int argc, curr, stop;
   const char **argv;
+  const char *ptr;
+  const char *currvalue;
 } warg_context;
 
 int warg_context_init (warg_context *ctx, const warg_opt *opts, int argc,

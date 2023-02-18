@@ -4,7 +4,7 @@ int
 main (int argc, const char *argv[])
 {
   char infile[4096] = "-", outfile[4096] = "-";
-  int indent = 2, max_frobulate = 0;
+  int indent = 2, max_frobulate = 0, rc;
 
   warg_context option_context;
   warg_opt option_table[]
@@ -18,6 +18,12 @@ main (int argc, const char *argv[])
           0 };
 
   warg_context_init (&option_context, option_table, argc, argv);
+
+  while ((rc = warg_next_arg (&option_context)) != -1)
+    {
+      printf ("arg found: %c\n", rc);
+    }
+
   warg_print_help (stdout, &option_context);
 
   return 0;
