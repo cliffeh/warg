@@ -1,7 +1,6 @@
 #ifndef __WARG_H
 #define __WARG_H 1
 
-#include "config.h"
 #include <stdio.h>
 
 // TODO for future use (line wrapping)

@@ -1,4 +1,4 @@
-#include "warg.h"
+#include "../warg.h"
 
 int
 main (int argc, const char *argv[])
