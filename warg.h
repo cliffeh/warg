@@ -17,8 +17,8 @@
 #define WARG_MAX_LINE_LENGTH 120
 #endif
 
-#ifndef WARG_MAX_FLAG_STRING_LENGTH
-#define WARG_MAX_FLAG_STRING_LENGTH 30
+#ifndef WARG_MAX_OPT_STRING_LENGTH
+#define WARG_MAX_OPT_STRING_LENGTH 30
 #endif
 
 // can be set to 'h' if you like

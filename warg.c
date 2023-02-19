@@ -33,7 +33,7 @@ warg_find_shortopt (const warg_context *ctx, char shortopt)
 }
 
 static int
-warg_flag_string (char *buf, const warg_opt *opt)
+warg_opt_string (char *buf, const warg_opt *opt)
 {
   int len = 0;
   char tmp[1024];
@@ -160,20 +160,20 @@ int
 warg_print_help (FILE *out, const warg_context *ctx)
 {
   char buf[1024];
-  int longest = 0; // longest flag string
+  int longest = 0; // longest option string
   fprintf (out, "Usage: %s [OPTION...]\n", ctx->progname);
   fprintf (out, "Options:\n");
 
   for (int i = 0; ctx->opts[i].longopt; i++)
     {
-      longest = max (longest, warg_flag_string (0, &ctx->opts[i]));
+      longest = max (longest, warg_opt_string (0, &ctx->opts[i]));
     }
 
-  longest = min (longest, WARG_MAX_FLAG_STRING_LENGTH);
+  longest = min (longest, WARG_MAX_OPT_STRING_LENGTH);
 
   for (int i = 0; ctx->opts[i].longopt; i++)
     {
-      int len = warg_flag_string (buf, &ctx->opts[i]);
+      int len = warg_opt_string (buf, &ctx->opts[i]);
 
       fprintf (out, "  %-*s", longest, buf);
       if (len > longest)
