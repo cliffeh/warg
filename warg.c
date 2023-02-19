@@ -135,14 +135,11 @@ warg_next_option (warg_context *ctx)
                   return WARG_UNKNOWN_OPTION;
                 }
 
+              ctx->ptr += strlen (longoptname);
               // now that we've located the option, we can figure out what
               // we're supposed to do with it
-              ctx->ptr += strlen (longoptname);
 
-              if (*ctx->ptr == '=')
-                { // we have an argument
-                  printf("EQUALS! %s\n", ctx->ptr);
-                }
+              // TODO set arg!
             }
         }
       else
@@ -182,13 +179,27 @@ warg_print_help (FILE *out, const warg_context *ctx)
       if (len > longest)
         fprintf (out, "\n%-*s  ", longest, "  ");
       fprintf (out, "%s", ctx->opts[i].description);
-      if (ctx->opts[i].store && *(char*)ctx->opts[i].store)
+
+      if (ctx->opts[i].argname)
         {
-          fprintf (out, " (default: %s)", (char*)ctx->opts[i].store);
+          switch (ctx->opts[i].type)
+            {
+            case WARG_TYPE_STRING:
+              {
+                if (*(char *)ctx->opts[i].store)
+                  fprintf (out, " (default: %s)", (char *)ctx->opts[i].store);
+              }
+              break;
+            case WARG_TYPE_INT:
+              {
+                fprintf (out, " (default: %i)", *((int *)ctx->opts[i].store));
+              }
+              break;
+              // default: don't print a default
+            }
         }
 
       fprintf (out, "\n");
     }
-
   return 0;
 }
