@@ -47,7 +47,7 @@ warg-*/
 warg-*.tar.gz
 
 # testing/logs
-test/warg.test
+warg.test
 
 # IDE files
 .vscode/

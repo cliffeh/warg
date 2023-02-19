@@ -1,0 +1,22 @@
+#!/bin/bash
+
+DIR=$(dirname "$0")
+WARG="$DIR/../warg.test"
+
+color_red="$(tput setaf 1)"
+color_green="$(tput setaf 2)"
+color_reset="$(tput sgr0)"
+
+EXPECTED='extra arg: foo
+extra arg: bar
+extra arg: baz'
+
+RECEIVED=$($WARG -- foo bar baz)
+
+echo -n "$0: "
+if [[ "$EXPECTED" = "$RECEIVED" ]]; then
+  echo -n "${color_green}PASS"
+else
+  echo -n "${color_red}PASS"
+fi
+echo "${color_reset}"

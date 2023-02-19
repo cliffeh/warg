@@ -1,4 +1,4 @@
-#include "../warg.h"
+#include "warg.h"
 #include <stdlib.h>
 
 int
@@ -28,7 +28,7 @@ main (int argc, const char *argv[])
 
   warg_context_init (&option_context, option_table, argc, argv);
 
-  while ((rc = warg_next_option (&option_context)) != -1)
+  while ((rc = warg_next_option (&option_context)) != WARG_OK)
     {
       switch (rc)
         {
