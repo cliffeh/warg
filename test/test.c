@@ -5,18 +5,18 @@ int
 main (int argc, const char *argv[])
 {
   char infile[4096] = "-", outfile[4096] = "-";
-  int indent = 2, max_frobulate = 0, rc;
+  int indent = 2, max_frobulate = 0, verbose = 0, rc;
 
   warg_context option_context;
   warg_opt option_table[]
-      = { /* longopt, shortopt, argname, defaultarg, description */
-          { "indent", 'I', "?NUM", "2",
+      = { /* longopt, shortopt, argname, store, description */
+          { "indent", 'I', "?NUM", &indent,
             "indent NUM spaces; implies pretty-printing" },
-          { "infile", 'i', "FILE", "-", "read input from FILE" },
-          { "outfile", 'o', "FILE", "-", "write output to FILE" },
+          { "infile", 'i', "FILE", &infile, "read input from FILE" },
+          { "outfile", 'o', "FILE", &outfile, "write output to FILE" },
           { "this-is-a-really-absurdly-unnecessarily-long-flag-name", 'T', 0,
-            0, "set all of the doinklets to max frobulation" },
-          { "verbose", 'v', 0, 0, "turn on verbose logging" },
+            &max_frobulate, "set all of the doinklets to max frobulation" },
+          { "verbose", 'v', 0, &verbose, "turn on verbose logging" },
           WARG_AUTOHELP,
           0
         };
@@ -37,7 +37,7 @@ main (int argc, const char *argv[])
         }
     }
 
-  // warg_print_help (stdout, &option_context);
+  warg_print_help (stdout, &option_context);
 
   return 0;
 }

@@ -40,7 +40,7 @@ typedef struct warg_opt
   const char *longopt;
   char shortopt;
   const char *argname;
-  const char *defaultarg;
+  void *store;
   const char *description;
 } warg_opt;
 
