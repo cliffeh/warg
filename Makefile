@@ -27,4 +27,4 @@ $(LIBRARY): $(OBJECTS)
 $(OBJECTS): $(SOURCES)
 
 test/warg.test: test/test.o $(LIBRARY) 
-	$(CC) $(FGLAGS) $^ -o $@
+	$(CC) $(CFLAGS) -g $^ -o $@
