@@ -42,7 +42,14 @@ main (int argc, const char *argv[])
         }
     }
 
-  warg_print_help (stdout, &option_context);
+  const char **extra_args = warg_extra_args (&option_context);
+
+  for (int i = 0; extra_args[i]; i++)
+    {
+      printf ("extra arg: %s\n", extra_args[i]);
+    }
+
+  // warg_print_help (stdout, &option_context);
 
   return 0;
 }

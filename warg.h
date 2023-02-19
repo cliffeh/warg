@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 // return values
-#define WARG_UNEXPECTED_ARGUMENT -3
 #define WARG_UNKNOWN_OPTION -2
 #define WARG_OK -1
 
@@ -19,6 +18,10 @@
 
 #ifndef WARG_MAX_OPT_STRING_LENGTH
 #define WARG_MAX_OPT_STRING_LENGTH 30
+#endif
+
+#ifndef WARG_MAX_EXTRA_ARGS
+#define WARG_MAX_EXTRA_ARGS 1024
 #endif
 
 // can be set to 'h' if you like
@@ -56,16 +59,17 @@ typedef struct warg_context
 {
   const char *progname;
   const warg_opt *opts;
-  int argc, curr, stop;
+  int argc, curr, stop, ea;
   const char **argv;
   const char *ptr;
-  char *err;
+  const char *extra_args[WARG_MAX_EXTRA_ARGS];
 } warg_context;
 
 int warg_context_init (warg_context *ctx, const warg_opt *opts, int argc,
                        const char *argv[]);
 const char *warg_current_option (warg_context *ctx);
 int warg_next_option (warg_context *ctx);
+const char **warg_extra_args(warg_context *ctx);
 int warg_print_help (FILE *out, const warg_context *ctx);
 
 #endif

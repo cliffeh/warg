@@ -63,15 +63,21 @@ int
 warg_context_init (warg_context *ctx, const warg_opt *opts, int argc,
                    const char *argv[])
 {
+  // TODO allow setting preamble/postable (for help string)
   // TODO strip path (basename?)
   ctx->progname = argv[0];
   ctx->opts = opts;
   ctx->argc = argc;
   ctx->argv = argv;
 
-  // TODO can we always assume that argv[0] is progname?
+  for (int i = 0; i < ctx->ea; i++)
+    {
+      ctx->extra_args[i] = 0;
+    }
+  ctx->ea = 0;
   ctx->stop = 0;
   ctx->curr = 0;
+  // TODO can we always assume that argv[0] is progname?
   // initialize ctx->ptr to the null character at the end of the program name
   ctx->ptr = argv[0];
   while (*ctx->ptr)
@@ -106,54 +112,75 @@ warg_next_option (warg_context *ctx)
         }
     }
 
-  if (*ctx->ptr == '-')
-    { // we have an option
-      ctx->ptr++;
+  while (ctx->curr < ctx->argc)
+    {
       if (*ctx->ptr == '-')
-        { // either a long option or a stop directive
+        { // we have an option
           ctx->ptr++;
-          if (!*ctx->ptr)
-            { // -- means stop processing options
-              ctx->stop = 1;
-              return -1;
+          if (*ctx->ptr == '-')
+            { // either a long option or a stop directive
+              ctx->ptr++;
+              if (!*ctx->ptr)
+                { // -- means stop processing options
+
+                  // everything else gets packed into extra_args
+                  while (++ctx->curr < ctx->argc)
+                    {
+                      ctx->extra_args[ctx->ea++] = ctx->argv[ctx->curr];
+                    }
+                  // position our pointer all the way at the null terminator of
+                  // the final arg
+                  ctx->ptr = ctx->argv[ctx->argc - 1];
+                  ctx->ptr += strlen (ctx->ptr);
+                  ctx->stop = 1;
+                  return -1;
+                }
+              else
+                { // longopt
+                  // TODO standardize on length limit?
+                  char longoptname[1024];
+                  int i = 0;
+                  for (const char *p = ctx->ptr; *p && *p != '='; p++)
+                    {
+                      longoptname[i++] = *p;
+                    }
+                  longoptname[i] = 0;
+
+                  const warg_opt *opt = warg_find_longopt (ctx, longoptname);
+                  if (!opt)
+                    {
+                      ctx->ptr -= 2;
+                      return WARG_UNKNOWN_OPTION;
+                    }
+
+                  ctx->ptr += strlen (longoptname);
+                  // now that we've located the option, we can figure out what
+                  // we're supposed to do with it
+
+                  // TODO set arg!
+                }
             }
           else
-            { // longopt
-              // TODO standardize on length limit?
-              char longoptname[1024];
-              int i = 0;
-              for (const char *p = ctx->ptr; *p && *p != '='; p++)
-                {
-                  longoptname[i++] = *p;
-                }
-              longoptname[i] = 0;
-
-              const warg_opt *opt = warg_find_longopt (ctx, longoptname);
-              if (!opt)
-                {
-                  ctx->ptr -= 2;
-                  return WARG_UNKNOWN_OPTION;
-                }
-
-              ctx->ptr += strlen (longoptname);
-              // now that we've located the option, we can figure out what
-              // we're supposed to do with it
-
-              // TODO set arg!
+            { // shortopt
+              const warg_opt *opt = warg_find_shortopt (ctx, *(ctx->ptr + 1));
             }
         }
       else
-        { // shortopt
-          const warg_opt *opt = warg_find_shortopt (ctx, *(ctx->ptr + 1));
+        {
+          ctx->extra_args[ctx->ea++] = ctx->argv[ctx->curr++];
+          if (ctx->curr >= ctx->argc)
+            return -1;
+          // otherwise we need to advance our pointer and keep seeking an
+          // option to return
+          ctx->ptr = ctx->argv[ctx->curr];
         }
     }
-  else
-    {
-      printf ("extra arg\n");
-    }
+}
 
-  printf ("ptr: %s\n", ctx->ptr);
-  return -1;
+const char **
+warg_extra_args (warg_context *ctx)
+{
+  return ctx->extra_args;
 }
 
 int
