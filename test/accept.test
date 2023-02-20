@@ -1,0 +1,33 @@
+#!/bin/bash
+
+DIR=$(dirname "$0")
+CMD="$DIR/warg-test"
+rc=0
+
+color_red="$(tput setaf 1)"
+color_green="$(tput setaf 2)"
+color_reset="$(tput sgr0)"
+
+failed_tests=""
+while [[ -n $1 ]]; do
+  test=$(basename "$1")
+  echo -n "ACCEPT: $test: "
+  if ${CMD} "$(cat "$DIR/$test")" >"$DIR/$test.out" 2>"$DIR/$test.err"; then
+    if diff "$DIR/$test.out" "$DIR/expected/$test.out"; then
+      echo "${color_green}PASS${color_reset}"
+    else
+      failed_tests="$failed_tests $test"
+      rc=1
+    fi
+  else
+    failed_tests="$failed_tests $test"
+    rc=1
+  fi
+  shift
+done
+
+for test in $failed_tests; do
+  echo "${color_red}FAIL${color_red}"
+done
+
+exit $rc

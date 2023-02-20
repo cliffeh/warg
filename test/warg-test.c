@@ -1,4 +1,4 @@
-#include "warg.h"
+#include "../warg.h"
 #include <stdlib.h>
 
 int

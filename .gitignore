@@ -30,7 +30,7 @@
 
 # Executables
 *.exe
-*.out
+/*.out
 *.app
 *.i*86
 *.x86_64
@@ -47,7 +47,7 @@ warg-*/
 warg-*.tar.gz
 
 # testing/logs
-warg.test
+test/warg-test
 test/*.err
 test/*.out
 

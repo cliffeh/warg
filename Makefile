@@ -1,12 +1,12 @@
 LIBRARY=warg.a
 OBJECTS=warg.o
 SOURCES=warg.c warg.h
-TESTS=$(wildcard test/*.test)
+TESTS=$(wildcard test/*.opts)
 
 all: $(LIBRARY) ## generate the warg.a library (default)
 
-check: warg.test ## run unit tests (work in progress)
-	@for test in $(TESTS); do $$test; done
+check: test/warg-test ## run unit tests (work in progress)
+	@test/accept.test $(TESTS)
 .PHONY: check
 
 clean: ## clean up intermediate object files
@@ -27,5 +27,5 @@ $(LIBRARY): $(OBJECTS)
 
 $(OBJECTS): $(SOURCES)
 
-warg.test: test.o $(LIBRARY) 
+test/warg-test: test/warg-test.o $(LIBRARY) 
 	$(CC) $(CFLAGS) -g $^ -o $@
