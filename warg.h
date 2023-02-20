@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 // return values
-#define WARG_UNKNOWN_OPTION -2
 #define WARG_OK -1
 
 // types

@@ -32,15 +32,13 @@ main (int argc, const char *argv[])
     {
       switch (rc)
         {
-        case WARG_UNKNOWN_OPTION:
+        case WARG_HELP_CHAR:
           {
-            fprintf (stderr, "error: unknown option: %s\n",
-                     warg_current_option (&option_context));
-            warg_print_help (stderr, &option_context);
-            exit (1);
+            warg_print_help (stdout, &option_context);
+            exit (0);
           }
         }
-    }
+    };
 
   const char **extra_args = warg_extra_args (&option_context);
 

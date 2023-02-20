@@ -276,7 +276,60 @@ warg_next_option (warg_context *ctx)
             }
           else
             { // shortopt
-              const warg_opt *opt = warg_find_shortopt (ctx, *(ctx->ptr + 1));
+              const warg_opt *opt = warg_find_shortopt (ctx, *(ctx->ptr));
+              if (!opt)
+                { // oops, we got an unknown option!
+                  ctx->ptr = ctx->argv[ctx->curr];
+                  fprintf (stderr, "error: unknown option: -%c\n", *ctx->ptr);
+                  warg_print_help (stderr, ctx);
+                  // TODO flag for returning control and letting the user
+                  // decide what to do on error?
+                  exit (1);
+                }
+
+              ctx->ptr++;
+              if (opt->argname)
+                { // we're expecting an argument
+                  if (!ctx->ptr)
+                    {
+                      ctx->curr++;
+                      if (ctx->curr >= ctx->argc)
+                        {
+                          fprintf (stderr,
+                                   "error: option %c expects an argument\n",
+                                   opt->shortopt);
+                          warg_print_help (stderr, ctx);
+                          // TODO return control and let the user decide what
+                          // to do?
+                          exit (1);
+                        }
+                    }
+                  warg_set_argument (opt, ctx);
+                }
+              else
+                {
+                  if (opt->store)
+                    { // if storage has been provided but no argument is
+                      // required...
+                      switch (opt->type)
+                        {
+                        case WARG_TYPE_INT:
+                          { // default behavior: increment
+                            (*(int *)(opt->store))++;
+                          }
+                          break;
+                        case WARG_TYPE_STRING:
+                          { // default behavior: append shortopt (and
+                            // null-terminate)
+                            int len = strlen (((char *)(opt->store)));
+                            ((char *)(opt->store))[len] = opt->shortopt;
+                            ((char *)(opt->store))[len + 1] = 0;
+                          }
+                          // TODO default: toss an error for unknown types?
+                        }
+                    }
+                }
+              return opt->shortopt;
             }
         }
       else
