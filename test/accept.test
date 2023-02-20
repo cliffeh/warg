@@ -11,12 +11,11 @@ color_reset="$(tput sgr0)"
 failed_tests=""
 while [[ -n $1 ]]; do
   test=$(basename "$1")
-  echo -n "ACCEPT: $test: "
-  
+
   # shellcheck disable=SC2046
   if ${CMD} $(cat "$DIR/$test") >"$DIR/$test.out" 2>"$DIR/$test.err"; then
     if diff "$DIR/$test.out" "$DIR/expected/$test.out" >& "$DIR/$test.diff"; then
-      echo "${color_green}PASS${color_reset}"
+      echo "ACCEPT: $test: ${color_green}PASS${color_reset}"
     else
       failed_tests="$failed_tests $test"
       rc=1
@@ -29,7 +28,7 @@ while [[ -n $1 ]]; do
 done
 
 for test in $failed_tests; do
-  echo "${color_red}FAIL${color_red}"
+  echo "ACCEPT: $test: ${color_red}FAIL${color_red}"
 done
 
 exit $rc
