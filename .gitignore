@@ -49,6 +49,7 @@ warg-*.tar.gz
 # testing/logs
 test/warg-test
 test/*.err
+test/*.diff
 test/*.out
 
 # IDE files
