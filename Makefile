@@ -10,11 +10,11 @@ check: test/warg-test ## run unit tests (work in progress)
 .PHONY: check
 
 clean: ## clean up intermediate object files
-	rm -f $(OBJECTS) test/test.o
+	rm -f $(OBJECTS) test/warg-test.o
 .PHONY: clean
 
 realclean: clean ## clean up *everything*
-	rm -f $(LIBRARY) test/*.out test/*.err
+	rm -f $(LIBRARY) test/*.out test/*.err test/warg-test
 
 help: ## Show this help
 	@echo "\nSpecify a command. The choices are:\n"
