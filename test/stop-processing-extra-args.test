@@ -2,6 +2,7 @@
 
 DIR=$(dirname "$0")
 WARG="$DIR/../warg.test"
+rc=0
 
 color_red="$(tput setaf 1)"
 color_green="$(tput setaf 2)"
@@ -11,12 +12,17 @@ EXPECTED='extra arg: foo
 extra arg: bar
 extra arg: baz'
 
-RECEIVED=$($WARG -- foo bar baz)
-
-echo -n "$0: "
-if [[ "$EXPECTED" = "$RECEIVED" ]]; then
-  echo -n "${color_green}PASS"
+if $WARG -- foo bar baz > "$0.out" 2> "$0.err"; then
+  echo -n "$0: "
+  if echo "$EXPECTED" | diff "$0.out" -; then
+    echo -n "${color_green}PASS"
+  else
+    echo -n "${color_red}FAIL"
+    rc=1
+  fi
+  echo "${color_reset}"
 else
-  echo -n "${color_red}FAIL"
+  rc=1
 fi
-echo "${color_reset}"
+
+exit $rc

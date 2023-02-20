@@ -120,8 +120,18 @@ warg_context_init (warg_context *ctx, const warg_opt *opts, int argc,
                    const char *argv[])
 {
   // TODO allow setting preamble/postable (for help string)
-  // TODO strip path (basename?)
-  ctx->progname = argv[0];
+  // TODO use basename?
+  // TODO allow setting progname explicitly?
+
+  // find the last unescaped /
+  int lastslash = 0, len = strlen (argv[0]);
+  for (int i = 0; i < len; i++)
+    {
+      if (argv[0][i] != '\\' && i + 1 < len && argv[0][i + 1] == '/')
+        lastslash = i + 2;
+    }
+
+  ctx->progname = argv[0] + lastslash;
   ctx->opts = opts;
   ctx->argc = argc;
   ctx->argv = argv;
