@@ -40,8 +40,14 @@ main (int argc, const char *argv[])
         }
     };
 
-  const char **extra_args = warg_extra_args (&option_context);
+  printf("indent: %i\n", indent);
+  printf("infile: %s\n", infile);
+  printf("outfile: %s\n", outfile);
+  printf("prefix: %s\n", prefix);
+  printf("max_frobulate: %i\n", max_frobulate);
+  printf("verbose: %i\n", verbose);
 
+  const char **extra_args = warg_extra_args (&option_context);
   for (int i = 0; extra_args[i]; i++)
     {
       printf ("extra arg: %s\n", extra_args[i]);

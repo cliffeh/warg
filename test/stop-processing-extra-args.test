@@ -8,7 +8,13 @@ color_red="$(tput setaf 1)"
 color_green="$(tput setaf 2)"
 color_reset="$(tput sgr0)"
 
-EXPECTED='extra arg: foo
+EXPECTED='indent: 0
+infile: -
+outfile: -
+prefix: 
+max_frobulate: 0
+verbose: 0
+extra arg: foo
 extra arg: bar
 extra arg: baz'
 
