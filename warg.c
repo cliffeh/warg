@@ -1,5 +1,6 @@
 #include "warg.h"
 
+#include <stdlib.h> // for exit()
 #include <string.h>
 
 #ifndef max
@@ -47,16 +48,71 @@ warg_opt_string (char *buf, const warg_opt *opt)
 
   if (opt->argname)
     {
-      if (*opt->argname == '?')
-        {
-          len += sprintf (p + len, "[=%s]", opt->argname + 1);
-        }
-      else
-        {
-          len += sprintf (p + len, "=%s", opt->argname);
-        }
+      len += sprintf (p + len, "=%s", opt->argname);
     }
+
   return len;
+}
+
+static void
+warg_set_argument (const warg_opt *opt, warg_context *ctx)
+{
+  switch (opt->type)
+    {
+    case WARG_TYPE_STRING:
+      {
+        // TODO make sure the whole thing printed?
+        ctx->ptr += sprintf (opt->store, "%s", ctx->ptr);
+        return;
+      }
+    case WARG_TYPE_INT:
+      {
+        // we need a temporary pointer in case of error
+        int len = 0;
+        *((int *)opt->store) = 0;
+
+        int is_negative = 0;
+        if (*(ctx->ptr) == '-')
+          {
+            is_negative = 1;
+            ctx->ptr++;
+          }
+
+        while (*(ctx->ptr + len))
+          {
+            switch (*(ctx->ptr + len))
+              {
+              // clang-format off
+              case '0': case '1': case '2': case '3': case '4':
+              case '5': case '6': case '7': case '8': case '9':
+                // clang-format on
+                {
+                  *((int *)opt->store) *= 10;
+                  *((int *)opt->store) += (*(ctx->ptr + len) - '0');
+                  len++;
+                }
+                break;
+              default:
+                {
+                  fprintf (stderr,
+                           "error: expected integer argument, got '%s'\n",
+                           ctx->ptr);
+                  warg_print_help (stderr, ctx);
+                  // TODO flag for returning control and letting the user
+                  // decide what to do on error?
+                  exit (1);
+                }
+              }
+          }
+        if (is_negative)
+          {
+            *((int *)opt->store) *= -1;
+          }
+        // advance our pointer
+        ctx->ptr += len;
+        return;
+      }
+    }
 }
 
 int
@@ -148,16 +204,74 @@ warg_next_option (warg_context *ctx)
 
                   const warg_opt *opt = warg_find_longopt (ctx, longoptname);
                   if (!opt)
-                    {
-                      ctx->ptr -= 2;
-                      return WARG_UNKNOWN_OPTION;
+                    { // oops, we got an unknown option!
+                      // back up our pointer
+                      ctx->ptr = ctx->argv[ctx->curr];
+                      fprintf (stderr, "error: unknown option: %s\n",
+                               ctx->ptr);
+                      warg_print_help (stderr, ctx);
+                      // TODO flag for returning control and letting the user
+                      // decide what to do on error?
+                      exit (1);
                     }
 
                   ctx->ptr += strlen (longoptname);
                   // now that we've located the option, we can figure out what
                   // we're supposed to do with it
 
-                  // TODO set arg!
+                  if (opt->argname && *ctx->ptr == '=')
+                    { // we're expecting an argument and we have one
+                      ctx->ptr++;
+                      warg_set_argument (opt, ctx);
+                      return opt->shortopt;
+                    }
+                  else if (!opt->argname && !(*ctx->ptr))
+                    { // we're not expecting an argument, and we don't have one
+                      if (opt->store)
+                        { // if storage has been provided but no argument is
+                          // required...
+                          switch (opt->type)
+                            {
+                            case WARG_TYPE_INT:
+                              { // default behavior: increment
+                                (*(int *)(opt->store))++;
+                              }
+                              break;
+                            case WARG_TYPE_STRING:
+                              { // default behavior: append shortopt (and
+                                // null-terminate)
+                                int len = strlen (((char *)(opt->store)));
+                                ((char *)(opt->store))[len] = opt->shortopt;
+                                ((char *)(opt->store))[len + 1] = 0;
+                              }
+                              // TODO default: toss an error for unknown types?
+                            }
+                        }
+                      return opt->shortopt;
+                    }
+                  else if (opt->argname && *ctx->ptr != '=')
+                    { // we're expecting an argument but we didn't get one
+                      fprintf (stderr,
+                               "error: option %s expects an argument\n",
+                               opt->longopt);
+                      warg_print_help (stderr, ctx);
+                      // TODO return control and let the user decide what
+                      // to do?
+                      exit (1);
+                    }
+                  else if (!opt->argname && *ctx->ptr == '=')
+
+                    { // we have an argument but we weren't expecting one
+                      ctx->ptr++;
+                      fprintf (stderr,
+                               "error: option %s doesn't take an argument "
+                               "(got: '%s')\n",
+                               opt->longopt, ctx->ptr);
+                      warg_print_help (stderr, ctx);
+                      // TODO return control and let the user decide what
+                      // to do?
+                      exit (1);
+                    }
                 }
             }
           else
@@ -213,8 +327,9 @@ warg_print_help (FILE *out, const warg_context *ctx)
             {
             case WARG_TYPE_STRING:
               {
-                if (*(char *)ctx->opts[i].store)
-                  fprintf (out, " (default: %s)", (char *)ctx->opts[i].store);
+                if (*((char *)ctx->opts[i].store))
+                  fprintf (out, " (default: %s)",
+                           ((char *)ctx->opts[i].store));
               }
               break;
             case WARG_TYPE_INT:

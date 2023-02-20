@@ -17,6 +17,6 @@ echo -n "$0: "
 if [[ "$EXPECTED" = "$RECEIVED" ]]; then
   echo -n "${color_green}PASS"
 else
-  echo -n "${color_red}PASS"
+  echo -n "${color_red}FAIL"
 fi
 echo "${color_reset}"

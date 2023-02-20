@@ -5,19 +5,19 @@ int
 main (int argc, const char *argv[])
 {
   char infile[4096] = "-", outfile[4096] = "-", prefix[4096] = { 0 };
-  int indent = 2, max_frobulate = 0, verbose = 0, rc;
+  int indent = 0, max_frobulate = 0, verbose = 0, rc;
 
   warg_context option_context;
   warg_opt option_table[] = {
     /* longopt, shortopt, argname, store, type, description */
-    { "indent", 'I', "?NUM", &indent, WARG_TYPE_INT,
+    { "indent", 'I', "NUM", &indent, WARG_TYPE_INT,
       "indent NUM spaces; 0 implies compact formatting" },
     { "infile", 'i', "FILE", &infile, WARG_TYPE_STRING,
-      "read input from FILE" },
+      "read input from FILE; '-' to read from stdin" },
     { "outfile", 'o', "FILE", &outfile, WARG_TYPE_STRING,
-      "write output to FILE" },
+      "write output to FILE; '-' to write to stdout" },
     { "prefix", 'p', "STRING", &prefix, WARG_TYPE_STRING,
-      "prefix widget names with PREFIX" },
+      "prefix widget names with STRING" },
     { "this-is-a-really-absurdly-unnecessarily-long-flag-name", 'T', 0,
       &max_frobulate, WARG_TYPE_INT,
       "set all of the doinklets to max frobulation" },
