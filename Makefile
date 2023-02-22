@@ -14,7 +14,7 @@ clean: ## clean up intermediate object files
 .PHONY: clean
 
 realclean: clean ## clean up *everything*
-	rm -f $(LIBRARY) test/*.out test/*.err test/warg-test
+	rm -f $(LIBRARY) test/*.diff test/*.err test/*.out test/warg-test
 
 help: ## Show this help
 	@echo "\nSpecify a command. The choices are:\n"

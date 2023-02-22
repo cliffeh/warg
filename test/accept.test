@@ -28,7 +28,7 @@ while [[ -n $1 ]]; do
 done
 
 for test in $failed_tests; do
-  echo "ACCEPT: $test: ${color_red}FAIL${color_red}"
+  echo "ACCEPT: $test: ${color_red}FAIL${color_reset}"
 done
 
 exit $rc
