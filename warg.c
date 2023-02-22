@@ -1,6 +1,5 @@
 #include "warg.h"
 
-#include <stdlib.h> // for exit()
 #include <string.h>
 
 #ifndef max
@@ -60,7 +59,7 @@ warg_opt_string (char *buf, const warg_opt *opt)
   return len;
 }
 
-static void
+static int
 warg_set_argument (const warg_opt *opt, warg_context *ctx)
 {
   switch (opt->type)
@@ -68,9 +67,9 @@ warg_set_argument (const warg_opt *opt, warg_context *ctx)
     case WARG_TYPE_STRING:
       {
         // TODO make sure the whole thing printed?
-        ctx->ptr += sprintf (opt->store, "%s", ctx->ptr);
-        return;
+        return sprintf (opt->store, "%s", ctx->ptr);
       }
+      break;
     case WARG_TYPE_INT:
       {
         // we need a temporary pointer in case of error
@@ -80,7 +79,7 @@ warg_set_argument (const warg_opt *opt, warg_context *ctx)
         if (*(ctx->ptr) == '-')
           {
             is_negative = 1;
-            ctx->ptr++;
+            len++;
           }
 
         while (*(ctx->ptr + len))
@@ -99,13 +98,7 @@ warg_set_argument (const warg_opt *opt, warg_context *ctx)
                 break;
               default:
                 {
-                  fprintf (stderr,
-                           "error: expected integer argument, got '%s'\n",
-                           ctx->ptr);
-                  warg_print_help (stderr, ctx);
-                  // TODO flag for returning control and letting the user
-                  // decide what to do on error?
-                  exit (1);
+                  return WARG_ERROR_EXPECTED_INT;
                 }
               }
           }
@@ -115,9 +108,7 @@ warg_set_argument (const warg_opt *opt, warg_context *ctx)
           }
         *((int *)opt->store) = value;
 
-        // advance our pointer
-        ctx->ptr += len;
-        return;
+        return len;
       }
     }
 }
@@ -209,15 +200,7 @@ warg_next_option (warg_context *ctx)
 
           const warg_opt *opt = warg_find_longopt (ctx, longoptname);
           if (!opt)
-            { // oops, we got an unknown option!
-              // back up our pointer
-              ctx->ptr = ctx->argv[ctx->curr];
-              fprintf (stderr, "error: unknown option: %s\n", ctx->ptr);
-              warg_print_help (stderr, ctx);
-              // TODO flag for returning control and letting the user
-              // decide what to do on error?
-              exit (1);
-            }
+            return WARG_ERROR_UNKNOWN_OPTION;
 
           ctx->ptr += strlen (longoptname);
           // now that we've located the option, we can figure out what
@@ -226,7 +209,11 @@ warg_next_option (warg_context *ctx)
           if (opt->argname && *ctx->ptr == '=')
             { // we're expecting an argument and we have one
               ctx->ptr++;
-              warg_set_argument (opt, ctx);
+              int len = warg_set_argument (opt, ctx);
+              if (len < 0) // error!
+                return len;
+              // advance our pointer
+              ctx->ptr += len;
               return opt->shortopt;
             }
           else if (!opt->argname && !(*ctx->ptr))
@@ -257,24 +244,11 @@ warg_next_option (warg_context *ctx)
             }
           else if (opt->argname && *ctx->ptr != '=')
             { // we're expecting an argument but we didn't get one
-              fprintf (stderr, "error: option %s expects an argument\n",
-                       opt->longopt);
-              warg_print_help (stderr, ctx);
-              // TODO return control and let the user decide what
-              // to do?
-              exit (1);
+              return WARG_ERROR_ARGUMENT_NOT_FOUND;
             }
           else if (!opt->argname && *ctx->ptr == '=')
             { // we have an argument but we weren't expecting one
-              ctx->ptr++;
-              fprintf (stderr,
-                       "error: option %s doesn't take an argument "
-                       "(got: '%s')\n",
-                       opt->longopt, ctx->ptr);
-              warg_print_help (stderr, ctx);
-              // TODO return control and let the user decide what
-              // to do?
-              exit (1);
+              return WARG_ERROR_UNEXPECTED_ARGUMENT;
             }
         }
       else if (IS_SHORTOPT (ctx->argv[ctx->curr]))
@@ -285,11 +259,7 @@ warg_next_option (warg_context *ctx)
           const warg_opt *opt = warg_find_shortopt (ctx, *ctx->ptr);
           if (!opt)
             { // oops, we got an unknown option!
-              fprintf (stderr, "error: unknown option: -%c\n", *ctx->ptr);
-              warg_print_help (stderr, ctx);
-              // TODO flag for returning control and letting the user
-              // decide what to do on error?
-              exit (1);
+              return WARG_ERROR_UNKNOWN_OPTION;
             }
 
           if (opt->argname)
@@ -297,22 +267,17 @@ warg_next_option (warg_context *ctx)
               if (!*(++ctx->ptr))
                 { // if it's not elided into this option, we'll look at the
                   // next position
-                  ctx->curr++;
-                  if (ctx->curr == ctx->argc)
+                  if (ctx->curr + 1 == ctx->argc)
                     { // if we're out of args, no argument has been provided!
-                      fprintf (stderr,
-                               "error: option %c expects an argument\n",
-                               opt->shortopt);
-                      warg_print_help (stderr, ctx);
-                      // TODO return control and let the user decide what
-                      // to do?
-                      exit (1);
+                      return WARG_ERROR_ARGUMENT_NOT_FOUND;
                     }
                   // otherwise we'll advance to consume the next arg
-                  ctx->ptr = ctx->argv[ctx->curr];
+                  ctx->ptr = ctx->argv[++ctx->curr];
                 }
-              // note: this advances ctx->ptr for us
-              warg_set_argument (opt, ctx);
+              int len = warg_set_argument (opt, ctx);
+              if (len < 0) // error!
+                return len;
+              ctx->ptr += len;
             }
           else
             {
@@ -353,6 +318,12 @@ warg_next_option (warg_context *ctx)
     }
 }
 
+const char *
+warg_current_option (warg_context *ctx)
+{
+  return ctx->argv[ctx->curr];
+}
+
 const char **
 warg_extra_args (warg_context *ctx)
 {
@@ -360,7 +331,7 @@ warg_extra_args (warg_context *ctx)
 }
 
 int
-warg_print_help (FILE *out, const warg_context *ctx)
+warg_print_help (FILE *out, warg_context *ctx)
 {
   char buf[1024];
   int longest = 0; // longest option string
@@ -406,4 +377,45 @@ warg_print_help (FILE *out, const warg_context *ctx)
       fprintf (out, "\n");
     }
   return 0;
+}
+
+void
+warg_print_error (FILE *out, warg_context *ctx, int rc)
+{
+  switch (rc)
+    {
+    case WARG_ERROR_UNKNOWN_OPTION:
+      {
+        fprintf (out, "error: unknown option: %s\n",
+                 warg_current_option (ctx));
+        warg_print_help (out, ctx);
+      }
+      break;
+    case WARG_ERROR_ARGUMENT_NOT_FOUND:
+      {
+        fprintf (out, "error: option %s requires an argument\n",
+                 warg_current_option (ctx));
+        warg_print_help (out, ctx);
+      }
+      break;
+    case WARG_ERROR_UNEXPECTED_ARGUMENT:
+      {
+        fprintf (out, "error: option %s does not take an argument\n",
+                 warg_current_option (ctx));
+        warg_print_help (out, ctx);
+      }
+      break;
+    case WARG_ERROR_EXPECTED_INT:
+      {
+        fprintf (out, "error: option %s expects an integer argument\n",
+                 warg_current_option (ctx));
+        warg_print_help (out, ctx);
+      }
+      break;
+    default:
+      {
+        fprintf (out,
+                 "error: unknown error while parsing command line options\n");
+      }
+    }
 }

@@ -68,6 +68,11 @@ main (int argc, const char *argv[])
             exit (0);
           }
           break;
+        default:
+          {
+            warg_print_error (stderr, &option_context, rc);
+            exit (1);
+          }
         }
     };
 
