@@ -158,12 +158,6 @@ warg_context_init (warg_context *ctx, const warg_opt *opts, int argc,
   return 0;
 }
 
-const char *
-warg_current_option (warg_context *ctx)
-{
-  return ctx->ptr;
-}
-
 int
 warg_next_option (warg_context *ctx)
 {
