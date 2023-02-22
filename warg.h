@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 // return values
+#define WARG_ERROR_UNKNOWN_ARGUMENT_TYPE -6
 #define WARG_ERROR_EXPECTED_INT -5
 #define WARG_ERROR_UNEXPECTED_ARGUMENT -4
 #define WARG_ERROR_ARGUMENT_NOT_FOUND -3

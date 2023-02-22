@@ -115,6 +115,8 @@ warg_set_argument (const warg_opt *opt, warg_context *ctx)
 
         return len;
       }
+    default:
+      return WARG_ERROR_UNKNOWN_ARGUMENT_TYPE;
     }
 }
 
@@ -314,6 +316,8 @@ warg_next_option (warg_context *ctx)
           ctx->ptr = ctx->argv[ctx->curr] + 1;
         }
     }
+
+  return WARG_OK;
 }
 
 const char *
@@ -410,6 +414,12 @@ warg_print_error (FILE *out, warg_context *ctx, int rc)
         warg_print_help (out, ctx);
       }
       break;
+    case WARG_ERROR_UNKNOWN_ARGUMENT_TYPE:
+      {
+        fprintf (out, "error: option %s expects an unknown argument type\n",
+                 warg_current_option (ctx));
+        warg_print_help (out, ctx);
+      }
     default:
       {
         fprintf (out,
