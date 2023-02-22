@@ -1,4 +1,4 @@
-LIBRARY=warg.a # in parent project
+LIBRARY=../warg.a # in parent project
 BINARY=warg-test
 OBJECTS=warg-test.o
 SOURCES=warg-test.c
