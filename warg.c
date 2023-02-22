@@ -353,7 +353,7 @@ warg_next_option (warg_context *ctx)
             return -1;
           // otherwise we need to advance our pointer and keep seeking an
           // option to return
-          ctx->ptr = ctx->argv[ctx->curr];
+          ctx->ptr = ctx->argv[ctx->curr] + 1;
         }
     }
 }

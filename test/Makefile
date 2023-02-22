@@ -26,4 +26,4 @@ $(BINARY): $(OBJECTS) $(LIBRARY)
 	$(CC) $(CFLAGS) -g $^ -o $@
 
 $(LIBRARY):
-	make -C ..
+	make -C .. $@
