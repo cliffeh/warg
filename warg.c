@@ -17,23 +17,26 @@
 #define IS_SHORTOPT(p) (((*((p) + 0) == '-') && ((*((p) + 1) != '-'))))
 
 static const warg_opt *
-warg_find_longopt (const warg_context *ctx, const char *longoptname)
-{
-  for (int i = 0; ctx->opts[i].longopt; i++)
+warg_find_longopt (const warg_opt *opts, const char *longoptname)
+{ // note: longoptname may contain trailing =argument
+  char *p = 0;
+  for (int i = 0; opts[i].longopt; i++)
     {
-      if (strcmp (longoptname, ctx->opts[i].longopt) == 0)
-        return &ctx->opts[i];
+      int len = strlen (opts[i].longopt);
+      if (strncmp (opts[i].longopt, longoptname, len) == 0
+          && (!*(longoptname + len) || *(longoptname + len) == '='))
+        return &opts[i];
     }
   return 0;
 }
 
 static const warg_opt *
-warg_find_shortopt (const warg_context *ctx, char shortopt)
+warg_find_shortopt (const warg_opt *opts, char shortopt)
 {
-  for (int i = 0; ctx->opts[i].longopt; i++)
+  for (int i = 0; opts[i].longopt; i++)
     {
-      if (shortopt == ctx->opts[i].shortopt)
-        return &ctx->opts[i];
+      if (shortopt == opts[i].shortopt)
+        return &opts[i];
     }
   return 0;
 }
@@ -190,19 +193,12 @@ warg_next_option (warg_context *ctx)
         {
           ctx->ptr = ctx->argv[ctx->curr] + 2;
           // TODO standardize on length limit?
-          char longoptname[1024];
-          int i = 0;
-          for (const char *p = ctx->ptr; *p && *p != '='; p++)
-            {
-              longoptname[i++] = *p;
-            }
-          longoptname[i] = 0;
 
-          const warg_opt *opt = warg_find_longopt (ctx, longoptname);
+          const warg_opt *opt = warg_find_longopt (ctx->opts, ctx->ptr);
           if (!opt)
             return WARG_ERROR_UNKNOWN_OPTION;
 
-          ctx->ptr += strlen (longoptname);
+          ctx->ptr += strlen (opt->longopt);
           // now that we've located the option, we can figure out what
           // we're supposed to do with it
 
@@ -256,7 +252,7 @@ warg_next_option (warg_context *ctx)
           // either ctx->ptr has been reset and is pointing at the character
           // after the '-', or we've already consumed argument-less shortopts
           // prior to it
-          const warg_opt *opt = warg_find_shortopt (ctx, *ctx->ptr);
+          const warg_opt *opt = warg_find_shortopt (ctx->opts, *ctx->ptr);
           if (!opt)
             { // oops, we got an unknown option!
               return WARG_ERROR_UNKNOWN_OPTION;
