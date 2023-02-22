@@ -15,7 +15,7 @@ while [[ -n $1 ]]; do
   # shellcheck disable=SC2046
   if ${CMD} $(cat "$DIR/$test") >"$DIR/$test.out" 2>"$DIR/$test.err"; then
     if diff "$DIR/$test.out" "$DIR/expected/$test.out" >& "$DIR/$test.diff"; then
-      echo "ACCEPT: $test: ${color_green}PASS${color_reset}"
+      echo "$test: ${color_green}PASS${color_reset}"
     else
       failed_tests="$failed_tests $test"
       rc=1

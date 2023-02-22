@@ -2,10 +2,10 @@ LIBRARY=../warg.a # in parent project
 BINARY=warg-test
 OBJECTS=warg-test.o
 SOURCES=warg-test.c
-TESTS=$(wildcard *.opts)
+ACCEPT_TESTS=$(wildcard accept_*.opts)
 
 check: warg-test ## run unit tests
-	@./accept.test $(TESTS)
+	@./accept.test $(ACCEPT_TESTS)
 .PHONY: check
 
 format: ## format all source files (requires: clang-format)
