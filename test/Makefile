@@ -3,9 +3,11 @@ BINARY=warg-test
 OBJECTS=warg-test.o
 SOURCES=warg-test.c
 ACCEPT_TESTS=$(wildcard accept_*.opts)
+REJECT_TESTS=$(wildcard reject_*.opts)
 
 check: warg-test ## run unit tests
 	@./accept.test $(ACCEPT_TESTS)
+	@./reject.test $(REJECT_TESTS)
 .PHONY: check
 
 format: ## format all source files (requires: clang-format)
