@@ -1,23 +1,18 @@
-LIBRARY=warg.a
-OBJECTS=warg.o
-SOURCES=warg.c warg.h
-TESTS=$(wildcard test/*.opts)
+BINARY=warg-test
+OBJECTS=warg-test.o
+LIBRARY=../warg.a
+TESTS=$(wildcard *.opts)
 
-all: $(LIBRARY) ## generate the warg.a library (default)
-
-check: ## run unit tests (work in progress)
-	make -C test check
+check: warg-test ## run unit tests
+	@./accept.test $(TESTS)
 .PHONY: check
 
 clean: ## clean up intermediate object files
 	rm -f $(OBJECTS)
-	make -C test clean
 .PHONY: clean
 
 realclean: clean ## clean up *everything*
-	rm -f $(LIBRARY)
-	make -C test realclean
-.PHONY: realclean
+	rm -f $(BINARY) *.diff *.err *.out
 
 help: ## Show this help
 	@echo "\nSpecify a command. The choices are:\n"
@@ -25,7 +20,10 @@ help: ## Show this help
 	@echo ""
 .PHONY: help
 
-$(LIBRARY): $(OBJECTS)
-	$(AR) $(ARFLAGS) $@ $^
-
 $(OBJECTS): $(SOURCES)
+
+$(BINARY): $(OBJECTS) $(LIBRARY)
+	$(CC) $(CFLAGS) -g $^ -o $@
+
+$(LIBRARY):
+	make -C ..
