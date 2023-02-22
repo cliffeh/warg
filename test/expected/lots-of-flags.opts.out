@@ -1,0 +1,15 @@
+indent: 14
+indent: 44
+infile: -
+infile: ppp
+outfile: ll
+outfile: 46
+max_frobulate: 1
+max_frobulate: 2
+verbose: 1
+verbose: 2
+verbose: 3
+verbose: 4
+verbose: 5
+verbose: 6
+verbose: 7
