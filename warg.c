@@ -155,6 +155,7 @@ warg_context_init (warg_context *ctx, const warg_opt *opts, int argc,
   while (*ctx->ptr)
     ctx->ptr++;
 
+  // TODO sanity checks? e.g., argc > max args?
   return 0;
 }
 
@@ -263,7 +264,6 @@ warg_next_option (warg_context *ctx)
               exit (1);
             }
           else if (!opt->argname && *ctx->ptr == '=')
-
             { // we have an argument but we weren't expecting one
               ctx->ptr++;
               fprintf (stderr,
