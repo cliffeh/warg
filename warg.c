@@ -22,10 +22,14 @@ warg_find_longopt (const warg_opt *opts, const char *longoptname)
   char *p = 0;
   for (int i = 0; !AT_WARG_TABLE_END (opts[i]); i++)
     {
-      int len = strlen (opts[i].longopt);
-      if (strncmp (opts[i].longopt, longoptname, len) == 0
-          && (!*(longoptname + len) || *(longoptname + len) == '='))
-        return &opts[i];
+      // some opts might not have a long version
+      if (opts[i].longopt)
+        {
+          int len = strlen (opts[i].longopt);
+          if (strncmp (opts[i].longopt, longoptname, len) == 0
+              && (!*(longoptname + len) || *(longoptname + len) == '='))
+            return &opts[i];
+        }
     }
   return 0;
 }
