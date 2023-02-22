@@ -249,6 +249,8 @@ warg_next_option (warg_context *ctx)
                       { // default behavior: append shortopt (and
                         // null-terminate)
                         int len = strlen (((char *)(opt->store)));
+                        // TODO if shortopt hasn't been set, is this actually
+                        // the behavior we want?
                         ((char *)(opt->store))[len] = opt->shortopt;
                         ((char *)(opt->store))[len + 1] = 0;
                       }
