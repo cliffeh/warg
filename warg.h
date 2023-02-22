@@ -42,6 +42,16 @@
     "version", 0, 0, 0, 0, "show version information and exit"                \
   }
 
+#define WARG_TABLE_END                                                        \
+  {                                                                           \
+    0, 0, 0, 0, 0, 0                                                          \
+  }
+
+// convenience
+#define AT_WARG_TABLE_END(opt)                                                \
+  (!(opt).longopt && !(opt).shortopt && !(opt).argname && !(opt).store        \
+   && !(opt).description)
+
 #ifdef PACKAGE_STRING
 #define WARG_AUTOHELP WARG_AUTOHELP_HELP, WARG_AUTOHELP_VERSION
 #else

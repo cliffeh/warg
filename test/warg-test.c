@@ -23,7 +23,7 @@ main (int argc, const char *argv[])
       "set all of the doinklets to max frobulation" },
     { "verbose", 'v', 0, &verbose, WARG_TYPE_INT, "turn on verbose logging" },
     WARG_AUTOHELP,
-    0
+    WARG_TABLE_END
   };
 
   warg_context_init (&option_context, option_table, argc, argv);
