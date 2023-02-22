@@ -74,8 +74,7 @@ warg_set_argument (const warg_opt *opt, warg_context *ctx)
     case WARG_TYPE_INT:
       {
         // we need a temporary pointer in case of error
-        int len = 0;
-        *((int *)opt->store) = 0;
+        int len = 0, value = 0;
 
         int is_negative = 0;
         if (*(ctx->ptr) == '-')
@@ -93,8 +92,8 @@ warg_set_argument (const warg_opt *opt, warg_context *ctx)
               case '5': case '6': case '7': case '8': case '9':
                 // clang-format on
                 {
-                  *((int *)opt->store) *= 10;
-                  *((int *)opt->store) += (*(ctx->ptr + len) - '0');
+                  value *= 10;
+                  value += (*(ctx->ptr + len) - '0');
                   len++;
                 }
                 break;
@@ -114,6 +113,8 @@ warg_set_argument (const warg_opt *opt, warg_context *ctx)
           {
             *((int *)opt->store) *= -1;
           }
+        *((int *)opt->store) = value;
+
         // advance our pointer
         ctx->ptr += len;
         return;
