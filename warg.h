@@ -58,6 +58,7 @@ typedef struct warg_opt
   const char *description;
 } warg_opt;
 
+// TODO make opaque?
 typedef struct warg_context
 {
   const char *progname;
