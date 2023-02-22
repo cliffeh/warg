@@ -11,6 +11,12 @@
 #define min(a, b) ((a < b) ? a : b)
 #endif
 
+#define IS_STOPOPT(p)                                                         \
+  (((*((p) + 0) == '-') && ((*((p) + 1) == '-')) && ((*((p) + 2) == 0))))
+#define IS_LONGOPT(p)                                                         \
+  (((*((p) + 0) == '-') && ((*((p) + 1) == '-')) && ((*((p) + 2) != 0))))
+#define IS_SHORTOPT(p) (((*((p) + 0) == '-') && ((*((p) + 1) != '-'))))
+
 static const warg_opt *
 warg_find_longopt (const warg_context *ctx, const char *longoptname)
 {
@@ -161,186 +167,180 @@ warg_current_option (warg_context *ctx)
 int
 warg_next_option (warg_context *ctx)
 {
+  // we've already determined that it's time to stop processing options
   if (ctx->stop)
     return -1;
 
   if (!*ctx->ptr)
-    {
+    { // we need to move to the next value
       ctx->curr++;
-      if (ctx->curr >= ctx->argc)
+      if (ctx->curr == ctx->argc)
         { // we're done!
-          ctx->stop = 1;
+          ctx->stop = ctx->curr;
           return -1;
         }
-      else
-        { // advance our pointer
-          ctx->ptr = ctx->argv[ctx->curr];
+      else if (IS_STOPOPT (ctx->argv[ctx->curr]))
+        {
+          // everything else gets packed into extra_args
+          while (++ctx->curr < ctx->argc)
+            {
+              ctx->extra_args[ctx->ea++] = ctx->argv[ctx->curr];
+            }
+          ctx->stop = ctx->curr;
+          // position our pointer at the null terminator of the very last arg
+          ctx->argv[ctx->argc - 1];
+          ctx->ptr += strlen (ctx->ptr);
+
+          return -1;
         }
+      // otherwise we need to advance our pointer and move on
+      ctx->ptr = ctx->argv[ctx->curr] + 1;
     }
 
   while (ctx->curr < ctx->argc)
     {
-      if (*ctx->ptr == '-')
-        { // we have an option
-          ctx->ptr++;
-          if (*ctx->ptr == '-')
-            { // either a long option or a stop directive
-              ctx->ptr++;
-              if (!*ctx->ptr)
-                { // -- means stop processing options
-
-                  // everything else gets packed into extra_args
-                  while (++ctx->curr < ctx->argc)
-                    {
-                      ctx->extra_args[ctx->ea++] = ctx->argv[ctx->curr];
-                    }
-                  // position our pointer all the way at the null terminator of
-                  // the final arg
-                  ctx->ptr = ctx->argv[ctx->argc - 1];
-                  ctx->ptr += strlen (ctx->ptr);
-                  ctx->stop = 1;
-                  return -1;
-                }
-              else
-                { // longopt
-                  // TODO standardize on length limit?
-                  char longoptname[1024];
-                  int i = 0;
-                  for (const char *p = ctx->ptr; *p && *p != '='; p++)
-                    {
-                      longoptname[i++] = *p;
-                    }
-                  longoptname[i] = 0;
-
-                  const warg_opt *opt = warg_find_longopt (ctx, longoptname);
-                  if (!opt)
-                    { // oops, we got an unknown option!
-                      // back up our pointer
-                      ctx->ptr = ctx->argv[ctx->curr];
-                      fprintf (stderr, "error: unknown option: %s\n",
-                               ctx->ptr);
-                      warg_print_help (stderr, ctx);
-                      // TODO flag for returning control and letting the user
-                      // decide what to do on error?
-                      exit (1);
-                    }
-
-                  ctx->ptr += strlen (longoptname);
-                  // now that we've located the option, we can figure out what
-                  // we're supposed to do with it
-
-                  if (opt->argname && *ctx->ptr == '=')
-                    { // we're expecting an argument and we have one
-                      ctx->ptr++;
-                      warg_set_argument (opt, ctx);
-                      return opt->shortopt;
-                    }
-                  else if (!opt->argname && !(*ctx->ptr))
-                    { // we're not expecting an argument, and we don't have one
-                      if (opt->store)
-                        { // if storage has been provided but no argument is
-                          // required...
-                          switch (opt->type)
-                            {
-                            case WARG_TYPE_INT:
-                              { // default behavior: increment
-                                (*(int *)(opt->store))++;
-                              }
-                              break;
-                            case WARG_TYPE_STRING:
-                              { // default behavior: append shortopt (and
-                                // null-terminate)
-                                int len = strlen (((char *)(opt->store)));
-                                ((char *)(opt->store))[len] = opt->shortopt;
-                                ((char *)(opt->store))[len + 1] = 0;
-                              }
-                              // TODO default: toss an error for unknown types?
-                            }
-                        }
-                      return opt->shortopt;
-                    }
-                  else if (opt->argname && *ctx->ptr != '=')
-                    { // we're expecting an argument but we didn't get one
-                      fprintf (stderr,
-                               "error: option %s expects an argument\n",
-                               opt->longopt);
-                      warg_print_help (stderr, ctx);
-                      // TODO return control and let the user decide what
-                      // to do?
-                      exit (1);
-                    }
-                  else if (!opt->argname && *ctx->ptr == '=')
-
-                    { // we have an argument but we weren't expecting one
-                      ctx->ptr++;
-                      fprintf (stderr,
-                               "error: option %s doesn't take an argument "
-                               "(got: '%s')\n",
-                               opt->longopt, ctx->ptr);
-                      warg_print_help (stderr, ctx);
-                      // TODO return control and let the user decide what
-                      // to do?
-                      exit (1);
-                    }
-                }
+      if (IS_LONGOPT (ctx->argv[ctx->curr]))
+        {
+          ctx->ptr = ctx->argv[ctx->curr] + 2;
+          // TODO standardize on length limit?
+          char longoptname[1024];
+          int i = 0;
+          for (const char *p = ctx->ptr; *p && *p != '='; p++)
+            {
+              longoptname[i++] = *p;
             }
-          else
-            { // shortopt
-              const warg_opt *opt = warg_find_shortopt (ctx, *(ctx->ptr));
-              if (!opt)
-                { // oops, we got an unknown option!
-                  ctx->ptr = ctx->argv[ctx->curr];
-                  fprintf (stderr, "error: unknown option: -%c\n", *ctx->ptr);
-                  warg_print_help (stderr, ctx);
-                  // TODO flag for returning control and letting the user
-                  // decide what to do on error?
-                  exit (1);
-                }
+          longoptname[i] = 0;
 
+          const warg_opt *opt = warg_find_longopt (ctx, longoptname);
+          if (!opt)
+            { // oops, we got an unknown option!
+              // back up our pointer
+              ctx->ptr = ctx->argv[ctx->curr];
+              fprintf (stderr, "error: unknown option: %s\n", ctx->ptr);
+              warg_print_help (stderr, ctx);
+              // TODO flag for returning control and letting the user
+              // decide what to do on error?
+              exit (1);
+            }
+
+          ctx->ptr += strlen (longoptname);
+          // now that we've located the option, we can figure out what
+          // we're supposed to do with it
+
+          if (opt->argname && *ctx->ptr == '=')
+            { // we're expecting an argument and we have one
               ctx->ptr++;
-              if (opt->argname)
-                { // we're expecting an argument
-                  if (!ctx->ptr)
+              warg_set_argument (opt, ctx);
+              return opt->shortopt;
+            }
+          else if (!opt->argname && !(*ctx->ptr))
+            { // we're not expecting an argument, and we don't have one
+              if (opt->store)
+                { // if storage has been provided but no argument is
+                  // required...
+                  switch (opt->type)
                     {
-                      ctx->curr++;
-                      if (ctx->curr >= ctx->argc)
-                        {
-                          fprintf (stderr,
-                                   "error: option %c expects an argument\n",
-                                   opt->shortopt);
-                          warg_print_help (stderr, ctx);
-                          // TODO return control and let the user decide what
-                          // to do?
-                          exit (1);
-                        }
-                    }
-                  warg_set_argument (opt, ctx);
-                }
-              else
-                {
-                  if (opt->store)
-                    { // if storage has been provided but no argument is
-                      // required...
-                      switch (opt->type)
-                        {
-                        case WARG_TYPE_INT:
-                          { // default behavior: increment
-                            (*(int *)(opt->store))++;
-                          }
-                          break;
-                        case WARG_TYPE_STRING:
-                          { // default behavior: append shortopt (and
-                            // null-terminate)
-                            int len = strlen (((char *)(opt->store)));
-                            ((char *)(opt->store))[len] = opt->shortopt;
-                            ((char *)(opt->store))[len + 1] = 0;
-                          }
-                          // TODO default: toss an error for unknown types?
-                        }
+                    case WARG_TYPE_INT:
+                      { // default behavior: increment
+                        (*(int *)(opt->store))++;
+                      }
+                      break;
+                    case WARG_TYPE_STRING:
+                      { // default behavior: append shortopt (and
+                        // null-terminate)
+                        int len = strlen (((char *)(opt->store)));
+                        ((char *)(opt->store))[len] = opt->shortopt;
+                        ((char *)(opt->store))[len + 1] = 0;
+                      }
+                      // TODO default: toss an error for unknown types?
                     }
                 }
               return opt->shortopt;
             }
+          else if (opt->argname && *ctx->ptr != '=')
+            { // we're expecting an argument but we didn't get one
+              fprintf (stderr, "error: option %s expects an argument\n",
+                       opt->longopt);
+              warg_print_help (stderr, ctx);
+              // TODO return control and let the user decide what
+              // to do?
+              exit (1);
+            }
+          else if (!opt->argname && *ctx->ptr == '=')
+
+            { // we have an argument but we weren't expecting one
+              ctx->ptr++;
+              fprintf (stderr,
+                       "error: option %s doesn't take an argument "
+                       "(got: '%s')\n",
+                       opt->longopt, ctx->ptr);
+              warg_print_help (stderr, ctx);
+              // TODO return control and let the user decide what
+              // to do?
+              exit (1);
+            }
+        }
+      else if (IS_SHORTOPT (ctx->argv[ctx->curr]))
+        {
+          // either ctx->ptr has been reset and is pointing at the character
+          // after the '-', or we've already consumed argument-less shortopts
+          // prior to it
+          const warg_opt *opt = warg_find_shortopt (ctx, *ctx->ptr);
+          if (!opt)
+            { // oops, we got an unknown option!
+              fprintf (stderr, "error: unknown option: -%c\n", *ctx->ptr);
+              warg_print_help (stderr, ctx);
+              // TODO flag for returning control and letting the user
+              // decide what to do on error?
+              exit (1);
+            }
+
+          if (opt->argname)
+            { // we're expecting an argument
+              if (!++ctx->ptr)
+                { // if it's not elided into this option, we'll look at the
+                  // next position
+                  ctx->curr++;
+                  if (ctx->curr == ctx->argc)
+                    { // if we're out of args, no argument has been provided!
+                      fprintf (stderr,
+                               "error: option %c expects an argument\n",
+                               opt->shortopt);
+                      warg_print_help (stderr, ctx);
+                      // TODO return control and let the user decide what
+                      // to do?
+                      exit (1);
+                    }
+                }
+              // note: this advances ctx->ptr for us
+              warg_set_argument (opt, ctx);
+            }
+          else
+            {
+              if (opt->store)
+                { // if storage has been provided but no argument is
+                  // required...
+                  switch (opt->type)
+                    {
+                    case WARG_TYPE_INT:
+                      { // default behavior: increment
+                        (*(int *)(opt->store))++;
+                      }
+                      break;
+                    case WARG_TYPE_STRING:
+                      { // default behavior: append shortopt (and
+                        // null-terminate)
+                        int len = strlen (((char *)(opt->store)));
+                        ((char *)(opt->store))[len] = opt->shortopt;
+                        ((char *)(opt->store))[len + 1] = 0;
+                      }
+                      // TODO default: toss an error for unknown types?
+                    }
+                }
+              // advance our pointer
+              ctx->ptr++;
+            }
+          return opt->shortopt;
         }
       else
         {
