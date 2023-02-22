@@ -299,7 +299,7 @@ warg_next_option (warg_context *ctx)
 
           if (opt->argname)
             { // we're expecting an argument
-              if (!++ctx->ptr)
+              if (!*(++ctx->ptr))
                 { // if it's not elided into this option, we'll look at the
                   // next position
                   ctx->curr++;
@@ -313,6 +313,8 @@ warg_next_option (warg_context *ctx)
                       // to do?
                       exit (1);
                     }
+                  // otherwise we'll advance to consume the next arg
+                  ctx->ptr = ctx->argv[ctx->curr];
                 }
               // note: this advances ctx->ptr for us
               warg_set_argument (opt, ctx);
