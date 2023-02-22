@@ -175,7 +175,7 @@ warg_next_option (warg_context *ctx)
             }
           ctx->stop = ctx->curr;
           // position our pointer at the null terminator of the very last arg
-          ctx->argv[ctx->argc - 1];
+          ctx->ptr = ctx->argv[ctx->argc - 1];
           ctx->ptr += strlen (ctx->ptr);
 
           return -1;
