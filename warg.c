@@ -20,7 +20,7 @@ static const warg_opt *
 warg_find_longopt (const warg_opt *opts, const char *longoptname)
 { // note: longoptname may contain trailing =argument
   char *p = 0;
-  for (int i = 0; !AT_WARG_TABLE_END(opts[i]); i++)
+  for (int i = 0; !AT_WARG_TABLE_END (opts[i]); i++)
     {
       int len = strlen (opts[i].longopt);
       if (strncmp (opts[i].longopt, longoptname, len) == 0
@@ -33,7 +33,7 @@ warg_find_longopt (const warg_opt *opts, const char *longoptname)
 static const warg_opt *
 warg_find_shortopt (const warg_opt *opts, char shortopt)
 {
-  for (int i = 0; !AT_WARG_TABLE_END(opts[i]); i++)
+  for (int i = 0; !AT_WARG_TABLE_END (opts[i]); i++)
     {
       if (shortopt == opts[i].shortopt)
         return &opts[i];
@@ -48,7 +48,9 @@ warg_opt_string (char *buf, const warg_opt *opt)
   char tmp[1024];
   char *p = buf ? buf : tmp;
 
-  // there will always be a longopt, there may not always be a shortopt
+  // TODO the below is probably not a great assumption; modify this so the
+  // option can have either or both there will always be a longopt, there may
+  // not always be a shortopt
   if (opt->shortopt)
     len += sprintf (p + len, "-%c, --%s", opt->shortopt, opt->longopt);
   else
@@ -334,14 +336,14 @@ warg_print_help (FILE *out, warg_context *ctx)
   fprintf (out, "Usage: %s [OPTION...]\n", ctx->progname);
   fprintf (out, "Options:\n");
 
-  for (int i = 0; !AT_WARG_TABLE_END(ctx->opts[i]); i++)
+  for (int i = 0; !AT_WARG_TABLE_END (ctx->opts[i]); i++)
     {
       longest = max (longest, warg_opt_string (0, &ctx->opts[i]));
     }
 
   longest = min (longest, WARG_MAX_OPT_STRING_LENGTH);
 
-  for (int i = 0; !AT_WARG_TABLE_END(ctx->opts[i]); i++)
+  for (int i = 0; !AT_WARG_TABLE_END (ctx->opts[i]); i++)
     {
       int len = warg_opt_string (buf, &ctx->opts[i]);
 
