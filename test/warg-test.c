@@ -32,28 +32,50 @@ main (int argc, const char *argv[])
     {
       switch (rc)
         {
+        case 'I':
+          {
+            printf ("indent: %i\n", indent);
+          }
+          break;
+        case 'i':
+          {
+            printf ("infile: %s\n", infile);
+          }
+          break;
+        case 'o':
+          {
+            printf ("outfile: %s\n", outfile);
+          }
+          break;
+        case 'p':
+          {
+            printf ("prefix: %s\n", prefix);
+          }
+          break;
+        case 'T':
+          {
+            printf ("max_frobulate: %i\n", max_frobulate);
+          }
+          break;
+        case 'v':
+          {
+            printf ("verbose: %i\n", verbose);
+          }
+          break;
         case WARG_HELP_CHAR:
           {
             warg_print_help (stdout, &option_context);
             exit (0);
           }
+          break;
         }
     };
-
-  printf("indent: %i\n", indent);
-  printf("infile: %s\n", infile);
-  printf("outfile: %s\n", outfile);
-  printf("prefix: %s\n", prefix);
-  printf("max_frobulate: %i\n", max_frobulate);
-  printf("verbose: %i\n", verbose);
 
   const char **extra_args = warg_extra_args (&option_context);
   for (int i = 0; extra_args[i]; i++)
     {
       printf ("extra arg: %s\n", extra_args[i]);
     }
-
-  // warg_print_help (stdout, &option_context);
 
   return 0;
 }
