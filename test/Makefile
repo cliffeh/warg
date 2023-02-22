@@ -1,11 +1,16 @@
+LIBRARY=warg.a # in parent project
 BINARY=warg-test
 OBJECTS=warg-test.o
-LIBRARY=../warg.a
+SOURCES=warg-test.c
 TESTS=$(wildcard *.opts)
 
 check: warg-test ## run unit tests
 	@./accept.test $(TESTS)
 .PHONY: check
+
+format: ## format all source files (requires: clang-format)
+	clang-format -i $(SOURCES)
+.PHONY: format
 
 clean: ## clean up intermediate object files
 	rm -f $(OBJECTS)

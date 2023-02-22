@@ -9,6 +9,11 @@ check: ## run unit tests (work in progress)
 	make -C test check
 .PHONY: check
 
+format: ## format all source files (requires: clang-format)
+	clang-format -i $(SOURCES)
+	make -C test format
+.PHONY: format
+
 clean: ## clean up intermediate object files
 	rm -f $(OBJECTS)
 	make -C test clean

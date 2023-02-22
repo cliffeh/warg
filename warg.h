@@ -72,9 +72,9 @@ typedef struct warg_context
 int warg_context_init (warg_context *ctx, const warg_opt *opts, int argc,
                        const char *argv[]);
 int warg_next_option (warg_context *ctx);
-const char *warg_current_option(warg_context *ctx);
-const char **warg_extra_args(warg_context *ctx);
+const char *warg_current_option (warg_context *ctx);
+const char **warg_extra_args (warg_context *ctx);
 int warg_print_help (FILE *out, warg_context *ctx);
-void warg_print_error(FILE *out, warg_context *ctx, int rc);
+void warg_print_error (FILE *out, warg_context *ctx, int rc);
 
 #endif
