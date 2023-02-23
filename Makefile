@@ -21,7 +21,7 @@ format: ## format all source files (requires: clang-format)
 .PHONY: format
 
 clean: ## clean up intermediate object files
-	rm -f $(OBJECTS) test.o
+	rm -f $(OBJECTS) warg-test.o
 .PHONY: clean
 
 testclean: ## clean up testing logs
