@@ -148,12 +148,9 @@ warg_context_init (warg_context *ctx, const warg_opt *opts, int argc, const char
     }
   ctx->ea = 0;
   ctx->stop = 0;
-  ctx->curr = 0;
-  // TODO can we always assume that argv[0] is progname?
-  // initialize ctx->ptr to the null character at the end of the program name
-  ctx->ptr = argv[0];
-  while (*ctx->ptr)
-    ctx->ptr++;
+  // we want to start processing args after the program name
+  ctx->curr = 1;
+  ctx->ptr = 0;
 
   // TODO sanity checks? e.g., argc > max args?
   return 0;
@@ -162,62 +159,43 @@ warg_context_init (warg_context *ctx, const warg_opt *opts, int argc, const char
 int
 warg_next_option (warg_context *ctx)
 {
-  // we've already determined that it's time to stop processing options
-  if (ctx->stop)
-    return -1;
-
-  if (!*ctx->ptr)
-    { // we need to move to the next value
-      ctx->curr++;
-      if (ctx->curr == ctx->argc)
-        { // we're done!
-          ctx->stop = ctx->curr;
-          return -1;
-        }
-      else if (IS_STOPOPT (ctx->argv[ctx->curr]))
+  while (ctx->curr < ctx->argc) // while we still have args to process
+    {
+      if (IS_STOPOPT (ctx->argv[ctx->curr]))
         {
-          // everything else gets packed into extra_args
+          // we're done; let's pack everything else into extra_args
           while (++ctx->curr < ctx->argc)
             {
               ctx->extra_args[ctx->ea++] = ctx->argv[ctx->curr];
             }
-          ctx->stop = ctx->curr;
-          // position our pointer at the null terminator of the very last arg
-          ctx->ptr = ctx->argv[ctx->argc - 1];
-          ctx->ptr += strlen (ctx->ptr);
-
           return -1;
         }
-      // otherwise we need to advance our pointer and move on
-      ctx->ptr = ctx->argv[ctx->curr] + 1;
-    }
 
-  while (ctx->curr < ctx->argc)
-    {
       if (IS_LONGOPT (ctx->argv[ctx->curr]))
         {
-          ctx->ptr = ctx->argv[ctx->curr] + 2;
-          // TODO standardize on length limit?
-
+          ctx->ptr = ctx->argv[ctx->curr] + 2; // skip past the --
           const warg_opt *opt = warg_find_longopt (ctx->opts, ctx->ptr);
           if (!opt)
             return WARG_ERROR_UNKNOWN_OPTION;
 
-          ctx->ptr += strlen (opt->longopt);
           // now that we've located the option, we can figure out what
           // we're supposed to do with it
+          ctx->ptr += strlen (opt->longopt);
 
           if (opt->argname && *ctx->ptr == '=')
             { // we're expecting an argument and we have one
               int len = warg_set_argument (opt, ctx->ptr + 1);
               if (len < 0) // error!
                 return len;
-              // advance our pointer
-              ctx->ptr += len + 1; // make sure we include the '='
+
+              // advance curr, clear our pointer, and return
+              ctx->curr++;
+              ctx->ptr = 0;
               return opt->shortopt;
             }
           else if (!opt->argname && !(*ctx->ptr))
             { // we're not expecting an argument, and we don't have one
+              // TODO collapse this logic into warg_set_argument?
               if (opt->store)
                 { // if storage has been provided but no argument is
                   // required...
@@ -240,6 +218,9 @@ warg_next_option (warg_context *ctx)
                       // TODO default: toss an error for unknown types?
                     }
                 }
+              // advance curr, clear our pointer, and return
+              ctx->curr++;
+              ctx->ptr = 0;
               return opt->shortopt;
             }
           else if (opt->argname && *ctx->ptr != '=')
@@ -251,8 +232,11 @@ warg_next_option (warg_context *ctx)
               return WARG_ERROR_UNEXPECTED_ARGUMENT;
             }
         }
-      else if (IS_SHORTOPT (ctx->argv[ctx->curr]))
+
+      if (IS_SHORTOPT (ctx->argv[ctx->curr]))
         {
+          if (!ctx->ptr)
+            ctx->ptr = ctx->argv[ctx->curr] + 1;
           // either ctx->ptr has been reset and is pointing at the character
           // after the '-', or we've already consumed argument-less shortopts
           // prior to it
@@ -277,13 +261,18 @@ warg_next_option (warg_context *ctx)
               int len = warg_set_argument (opt, ctx->ptr);
               if (len < 0) // error!
                 return len;
-              ctx->ptr += len;
+
+              // advance curr, clear our pointer, and return
+              ctx->curr++;
+              ctx->ptr = 0;
+              return opt->shortopt;
             }
           else
             {
               if (opt->store)
                 { // if storage has been provided but no argument is
                   // required...
+                  // TODO collapse this logic into warg_set_argument?
                   switch (opt->type)
                     {
                     case WARG_TYPE_INT:
@@ -301,22 +290,22 @@ warg_next_option (warg_context *ctx)
                       // TODO default: toss an error for unknown types?
                     }
                 }
-              // advance our pointer
-              ctx->ptr++;
+              // advance our pointer, possibly meaning moving to the next arg
+              if (!*(++ctx->ptr))
+                {
+                  ctx->curr++;
+                  ctx->ptr = 0;
+                }
+              return opt->shortopt;
             }
-          return opt->shortopt;
         }
       else
-        {
+        { // this isn't an option, it's an extra argument
           ctx->extra_args[ctx->ea++] = ctx->argv[ctx->curr++];
-          if (ctx->curr >= ctx->argc)
-            return -1;
-          // otherwise we need to advance our pointer and keep seeking an
-          // option to return
-          ctx->ptr = ctx->argv[ctx->curr] + 1;
         }
     }
 
+  // if we're here then we've run out of arguments to process
   return WARG_OK;
 }
 
