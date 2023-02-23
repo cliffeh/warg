@@ -37,7 +37,7 @@ help: ## Show this help
 	@echo ""
 .PHONY: help
 
-$(BINARY): test.o $(LIBRARY)
+$(BINARY): warg-test.o $(LIBRARY)
 	$(CC) $(CFLAGS) -g $^ -o $@
 
 $(LIBRARY): $(OBJECTS)
@@ -45,4 +45,4 @@ $(LIBRARY): $(OBJECTS)
 
 $(OBJECTS): $(SOURCES)
 
-test.o: test.c
+warg-test.o: warg-test.c
