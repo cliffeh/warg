@@ -67,14 +67,14 @@ warg_opt_string (char *buf, const warg_opt *opt)
 }
 
 static int
-warg_set_argument (const warg_opt *opt, warg_context *ctx)
+warg_set_argument (const warg_opt *opt, const char *arg)
 {
   switch (opt->type)
     {
     case WARG_TYPE_STRING:
       {
         // TODO make sure the whole thing printed?
-        return sprintf (opt->store, "%s", ctx->ptr);
+        return sprintf (opt->store, "%s", arg);
       }
       break;
     case WARG_TYPE_INT:
@@ -83,15 +83,15 @@ warg_set_argument (const warg_opt *opt, warg_context *ctx)
         int len = 0, value = 0;
 
         int is_negative = 0;
-        if (*(ctx->ptr) == '-')
+        if (*arg == '-')
           {
             is_negative = 1;
             len++;
           }
 
-        while (*(ctx->ptr + len))
+        while (*(arg + len))
           {
-            switch (*(ctx->ptr + len))
+            switch (*(arg + len))
               {
               // clang-format off
               case '0': case '1': case '2': case '3': case '4':
@@ -99,7 +99,7 @@ warg_set_argument (const warg_opt *opt, warg_context *ctx)
                 // clang-format on
                 {
                   value *= 10;
-                  value += (*(ctx->ptr + len) - '0');
+                  value += (*(arg + len) - '0');
                   len++;
                 }
                 break;
@@ -209,12 +209,11 @@ warg_next_option (warg_context *ctx)
 
           if (opt->argname && *ctx->ptr == '=')
             { // we're expecting an argument and we have one
-              ctx->ptr++;
-              int len = warg_set_argument (opt, ctx);
+              int len = warg_set_argument (opt, ctx->ptr + 1);
               if (len < 0) // error!
                 return len;
               // advance our pointer
-              ctx->ptr += len;
+              ctx->ptr += len + 1; // make sure we include the '='
               return opt->shortopt;
             }
           else if (!opt->argname && !(*ctx->ptr))
@@ -275,7 +274,7 @@ warg_next_option (warg_context *ctx)
                   // otherwise we'll advance to consume the next arg
                   ctx->ptr = ctx->argv[++ctx->curr];
                 }
-              int len = warg_set_argument (opt, ctx);
+              int len = warg_set_argument (opt, ctx->ptr);
               if (len < 0) // error!
                 return len;
               ctx->ptr += len;
