@@ -10,10 +10,8 @@
 #define min(a, b) ((a < b) ? a : b)
 #endif
 
-#define IS_STOPOPT(p)                                                         \
-  (((*((p) + 0) == '-') && ((*((p) + 1) == '-')) && ((*((p) + 2) == 0))))
-#define IS_LONGOPT(p)                                                         \
-  (((*((p) + 0) == '-') && ((*((p) + 1) == '-')) && ((*((p) + 2) != 0))))
+#define IS_STOPOPT(p) (((*((p) + 0) == '-') && ((*((p) + 1) == '-')) && ((*((p) + 2) == 0))))
+#define IS_LONGOPT(p) (((*((p) + 0) == '-') && ((*((p) + 1) == '-')) && ((*((p) + 2) != 0))))
 #define IS_SHORTOPT(p) (((*((p) + 0) == '-') && ((*((p) + 1) != '-'))))
 
 static const warg_opt *
@@ -125,8 +123,7 @@ warg_set_argument (const warg_opt *opt, warg_context *ctx)
 }
 
 int
-warg_context_init (warg_context *ctx, const warg_opt *opts, int argc,
-                   const char *argv[])
+warg_context_init (warg_context *ctx, const warg_opt *opts, int argc, const char *argv[])
 {
   // TODO allow setting preamble/postable (for help string)
   // TODO use basename?
@@ -367,8 +364,7 @@ warg_print_help (FILE *out, warg_context *ctx)
             case WARG_TYPE_STRING:
               {
                 if (*((char *)ctx->opts[i].store))
-                  fprintf (out, " (default: %s)",
-                           ((char *)ctx->opts[i].store));
+                  fprintf (out, " (default: %s)", ((char *)ctx->opts[i].store));
               }
               break;
             case WARG_TYPE_INT:
@@ -392,42 +388,36 @@ warg_print_error (FILE *out, warg_context *ctx, int rc)
     {
     case WARG_ERROR_UNKNOWN_OPTION:
       {
-        fprintf (out, "error: unknown option: %s\n",
-                 warg_current_option (ctx));
+        fprintf (out, "error: unknown option: %s\n", warg_current_option (ctx));
         warg_print_help (out, ctx);
       }
       break;
     case WARG_ERROR_ARGUMENT_NOT_FOUND:
       {
-        fprintf (out, "error: option %s requires an argument\n",
-                 warg_current_option (ctx));
+        fprintf (out, "error: option %s requires an argument\n", warg_current_option (ctx));
         warg_print_help (out, ctx);
       }
       break;
     case WARG_ERROR_UNEXPECTED_ARGUMENT:
       {
-        fprintf (out, "error: option %s does not take an argument\n",
-                 warg_current_option (ctx));
+        fprintf (out, "error: option %s does not take an argument\n", warg_current_option (ctx));
         warg_print_help (out, ctx);
       }
       break;
     case WARG_ERROR_EXPECTED_INT:
       {
-        fprintf (out, "error: option %s expects an integer argument\n",
-                 warg_current_option (ctx));
+        fprintf (out, "error: option %s expects an integer argument\n", warg_current_option (ctx));
         warg_print_help (out, ctx);
       }
       break;
     case WARG_ERROR_UNKNOWN_ARGUMENT_TYPE:
       {
-        fprintf (out, "error: option %s expects an unknown argument type\n",
-                 warg_current_option (ctx));
+        fprintf (out, "error: option %s expects an unknown argument type\n", warg_current_option (ctx));
         warg_print_help (out, ctx);
       }
     default:
       {
-        fprintf (out,
-                 "error: unknown error while parsing command line options\n");
+        fprintf (out, "error: unknown error while parsing command line options\n");
       }
     }
 }

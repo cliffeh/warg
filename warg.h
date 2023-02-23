@@ -33,25 +33,24 @@
 #define WARG_HELP_CHAR '?'
 #endif
 
-#define WARG_AUTOHELP_HELP                                                    \
-  {                                                                           \
-    "help", WARG_HELP_CHAR, 0, 0, 0, "show this help message and exit"        \
+#define WARG_AUTOHELP_HELP                                                                                             \
+  {                                                                                                                    \
+    "help", WARG_HELP_CHAR, 0, 0, 0, "show this help message and exit"                                                 \
   }
 
-#define WARG_AUTOHELP_VERSION                                                 \
-  {                                                                           \
-    "version", 0, 0, 0, 0, "show version information and exit"                \
+#define WARG_AUTOHELP_VERSION                                                                                          \
+  {                                                                                                                    \
+    "version", 0, 0, 0, 0, "show version information and exit"                                                         \
   }
 
-#define WARG_TABLE_END                                                        \
-  {                                                                           \
-    0, 0, 0, 0, 0, 0                                                          \
+#define WARG_TABLE_END                                                                                                 \
+  {                                                                                                                    \
+    0, 0, 0, 0, 0, 0                                                                                                   \
   }
 
 // convenience
-#define AT_WARG_TABLE_END(opt)                                                \
-  (!(opt).longopt && !(opt).shortopt && !(opt).argname && !(opt).store        \
-   && !(opt).description)
+#define AT_WARG_TABLE_END(opt)                                                                                         \
+  (!(opt).longopt && !(opt).shortopt && !(opt).argname && !(opt).store && !(opt).description)
 
 #ifdef PACKAGE_STRING
 #define WARG_AUTOHELP WARG_AUTOHELP_HELP, WARG_AUTOHELP_VERSION
@@ -80,8 +79,7 @@ typedef struct warg_context
   const char *extra_args[WARG_MAX_EXTRA_ARGS];
 } warg_context;
 
-int warg_context_init (warg_context *ctx, const warg_opt *opts, int argc,
-                       const char *argv[]);
+int warg_context_init (warg_context *ctx, const warg_opt *opts, int argc, const char *argv[]);
 int warg_next_option (warg_context *ctx);
 const char *warg_current_option (warg_context *ctx);
 const char **warg_extra_args (warg_context *ctx);
