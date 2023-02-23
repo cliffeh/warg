@@ -10,3 +10,4 @@
 * some things to shore up:
   * printing help with null longopt
   * printing help with !isgraph() shortopt
+* add test for longopt with space (--indent 22)

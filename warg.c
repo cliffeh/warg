@@ -182,9 +182,21 @@ warg_next_option (warg_context *ctx)
           // we're supposed to do with it
           ctx->ptr += strlen (opt->longopt);
 
-          if (opt->argname && *ctx->ptr == '=')
-            { // we're expecting an argument and we have one
-              int len = warg_set_argument (opt, ctx->ptr + 1);
+          if (opt->argname)
+            { // we're expecting an argument
+              int len = 0;
+              if (*ctx->ptr == '=')
+                { // our argument will be the bit after the =
+                  ctx->ptr++;
+                  len = warg_set_argument (opt, ctx->ptr);
+                }
+              else if (!*ctx->ptr)
+                { // our argument will be the next arg
+                  if (++ctx->curr == ctx->argc)
+                    return WARG_ERROR_ARGUMENT_NOT_FOUND;
+                  len = warg_set_argument (opt, ctx->argv[ctx->curr]);
+                }
+
               if (len < 0) // error!
                 return len;
 
@@ -193,8 +205,11 @@ warg_next_option (warg_context *ctx)
               ctx->ptr = 0;
               return opt->shortopt;
             }
-          else if (!opt->argname && !(*ctx->ptr))
-            { // we're not expecting an argument, and we don't have one
+          else
+            { // we're not expecting an argument
+              if (*ctx->ptr == '=')
+                return WARG_ERROR_UNEXPECTED_ARGUMENT;
+
               // TODO collapse this logic into warg_set_argument?
               if (opt->store)
                 { // if storage has been provided but no argument is
@@ -222,14 +237,6 @@ warg_next_option (warg_context *ctx)
               ctx->curr++;
               ctx->ptr = 0;
               return opt->shortopt;
-            }
-          else if (opt->argname && *ctx->ptr != '=')
-            { // we're expecting an argument but we didn't get one
-              return WARG_ERROR_ARGUMENT_NOT_FOUND;
-            }
-          else if (!opt->argname && *ctx->ptr == '=')
-            { // we have an argument but we weren't expecting one
-              return WARG_ERROR_UNEXPECTED_ARGUMENT;
             }
         }
 
