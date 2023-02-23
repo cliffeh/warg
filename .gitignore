@@ -47,6 +47,7 @@ warg-*/
 warg-*.tar.gz
 
 # testing/logs
+warg-test
 tests/*.err
 tests/*.diff
 tests/*.out
