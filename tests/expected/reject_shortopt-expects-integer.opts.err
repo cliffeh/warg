@@ -1,0 +1,11 @@
+error: option -Iabc expects an integer argument
+Usage: warg-test [OPTION...]
+Options:
+  -I, --indent=NUM              indent NUM spaces; 0 implies compact formatting (default: 0)
+  -i, --infile=FILE             read input from FILE; '-' to read from stdin (default: -)
+  -o, --outfile=FILE            write output to FILE; '-' to write to stdout (default: -)
+  -p, --prefix=STRING           prefix widget names with STRING
+  -T, --this-is-a-really-absurdly-unnecessarily-long-flag-name
+                                set all of the doinklets to max frobulation
+  -v, --verbose                 turn on verbose logging
+  -?, --help                    show this help message and exit
