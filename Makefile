@@ -1,12 +1,18 @@
+BINARY=warg-test
 LIBRARY=warg.a
 OBJECTS=warg.o
 SOURCES=warg.c warg.h
-TESTS=$(wildcard test/*.opts)
+TESTDIR=tests
+ACCEPT_TESTS=$(wildcard $(TESTDIR)/accept_*.opts)
+REJECT_TESTS=$(wildcard $(TESTDIR)/reject_*.opts)
 
-all: $(LIBRARY) ## generate the warg.a library (default)
+all: lib check ## build everything and run the test suite (default)
 
-check: ## run unit tests (work in progress)
-	make -C test check
+lib: $(LIBRARY) # build the warg library
+
+check: warg-test ## run unit tests (work in progress)
+	@tests/accept.test $(ACCEPT_TESTS)
+	@tests/reject.test $(REJECT_TESTS)
 .PHONY: check
 
 format: ## format all source files (requires: clang-format)
@@ -15,14 +21,15 @@ format: ## format all source files (requires: clang-format)
 .PHONY: format
 
 clean: ## clean up intermediate object files
-	rm -f $(OBJECTS)
-	make -C test clean
+	rm -f $(OBJECTS) test.o
 .PHONY: clean
 
-realclean: clean ## clean up *everything*
-	rm -f $(LIBRARY)
-	make -C test realclean
-.PHONY: realclean
+testclean: ## clean up testing logs
+	rm -f $(TESTDIR)/*.diff $(TESTDIR)/*.err $(TESTDIR)/*.out
+
+realclean: clean testclean ## clean up *everything*
+	rm -f $(LIBRARY) $(BINARY)
+PHONY: realclean
 
 help: ## Show this help
 	@echo "\nSpecify a command. The choices are:\n"
@@ -30,7 +37,12 @@ help: ## Show this help
 	@echo ""
 .PHONY: help
 
+$(BINARY): test.o $(LIBRARY)
+	$(CC) $(CFLAGS) -g $^ -o $@
+
 $(LIBRARY): $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $^
 
 $(OBJECTS): $(SOURCES)
+
+test.o: test.c

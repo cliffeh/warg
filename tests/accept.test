@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# for unhappy-path test cases that should fail
+# for happy-path test cases that should succeed
 
 DIR=$(dirname "$0")
-CMD="$DIR/warg-test"
+CMD="$DIR/../warg-test"
 rc=0
 
 color_red="$(tput setaf 1)"
@@ -15,7 +15,7 @@ while [[ -n $1 ]]; do
   test=$(basename "$1")
 
   # shellcheck disable=SC2046
-  if ! ${CMD} $(cat "$DIR/$test") >"$DIR/$test.out" 2>"$DIR/$test.err"; then
+  if ${CMD} $(cat "$DIR/$test") >"$DIR/$test.out" 2>"$DIR/$test.err"; then
     if diff "$DIR/$test.out" "$DIR/expected/$test.out" >& "$DIR/$test.out.diff" &&
        diff "$DIR/$test.err" "$DIR/expected/$test.err" >& "$DIR/$test.err.diff"; then
       echo "$test: ${color_green}PASS${color_reset}"

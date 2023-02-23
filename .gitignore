@@ -47,10 +47,9 @@ warg-*/
 warg-*.tar.gz
 
 # testing/logs
-test/warg-test
-test/*.err
-test/*.diff
-test/*.out
+tests/*.err
+tests/*.diff
+tests/*.out
 
 # IDE files
 .vscode/

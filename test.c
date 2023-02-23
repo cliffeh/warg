@@ -1,4 +1,4 @@
-#include "../warg.h"
+#include "warg.h"
 #include <stdlib.h>
 
 int
@@ -8,23 +8,18 @@ main (int argc, const char *argv[])
   int indent = 0, max_frobulate = 0, verbose = 0, rc;
 
   warg_context option_context;
-  warg_opt option_table[] = {
-    /* longopt, shortopt, argname, store, type, description */
-    { "indent", 'I', "NUM", &indent, WARG_TYPE_INT,
-      "indent NUM spaces; 0 implies compact formatting" },
-    { "infile", 'i', "FILE", &infile, WARG_TYPE_STRING,
-      "read input from FILE; '-' to read from stdin" },
-    { "outfile", 'o', "FILE", &outfile, WARG_TYPE_STRING,
-      "write output to FILE; '-' to write to stdout" },
-    { "prefix", 'p', "STRING", &prefix, WARG_TYPE_STRING,
-      "prefix widget names with STRING" },
-    { "this-is-a-really-absurdly-unnecessarily-long-flag-name", 'T', 0,
-      &max_frobulate, WARG_TYPE_INT,
-      "set all of the doinklets to max frobulation" },
-    { "verbose", 'v', 0, &verbose, WARG_TYPE_INT, "turn on verbose logging" },
-    WARG_AUTOHELP,
-    WARG_TABLE_END
-  };
+  warg_opt option_table[]
+      = { /* longopt, shortopt, argname, store, type, description */
+          { "indent", 'I', "NUM", &indent, WARG_TYPE_INT, "indent NUM spaces; 0 implies compact formatting" },
+          { "infile", 'i', "FILE", &infile, WARG_TYPE_STRING, "read input from FILE; '-' to read from stdin" },
+          { "outfile", 'o', "FILE", &outfile, WARG_TYPE_STRING, "write output to FILE; '-' to write to stdout" },
+          { "prefix", 'p', "STRING", &prefix, WARG_TYPE_STRING, "prefix widget names with STRING" },
+          { "this-is-a-really-absurdly-unnecessarily-long-flag-name", 'T', 0, &max_frobulate, WARG_TYPE_INT,
+            "set all of the doinklets to max frobulation" },
+          { "verbose", 'v', 0, &verbose, WARG_TYPE_INT, "turn on verbose logging" },
+          WARG_AUTOHELP,
+          WARG_TABLE_END
+        };
 
   warg_context_init (&option_context, option_table, argc, argv);
 
