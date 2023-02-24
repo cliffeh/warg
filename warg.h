@@ -80,7 +80,6 @@ typedef struct warg_context
   int argc, curr, stop, ea;
   const char **argv;
   const char *ptr;
-  const void *defaults[WARG_MAX_OPTS];
   const char *extra_args[WARG_MAX_EXTRA_ARGS];
 } warg_context;
 
