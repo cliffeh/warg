@@ -220,7 +220,9 @@ warg_next_option (warg_context *ctx)
 
               if (opt->store)
                 { // storage has been provided but no argument is expected
-                  warg_set_argument (opt, 0);
+                  int len = warg_set_argument (opt, 0);
+                  if (len < 0)
+                    return len;
                 }
               // advance curr, clear our pointer, and return
               ctx->curr++;
@@ -268,7 +270,9 @@ warg_next_option (warg_context *ctx)
               if (opt->store)
                 { // if storage has been provided but no argument is
                   // required...
-                  warg_set_argument (opt, 0);
+                  int len = warg_set_argument (opt, 0);
+                  if (len < 0)
+                    return len;
                 }
               // advance our pointer, possibly meaning moving to the next arg
               if (!*(++ctx->ptr))
@@ -385,7 +389,7 @@ warg_print_error (FILE *out, warg_context *ctx, int rc)
       }
     default:
       {
-        fprintf (out, "error: unknown error while parsing command line options\n");
+        fprintf (out, "error: unknown error while parsing command line options (%i)\n", rc);
       }
     }
 }
