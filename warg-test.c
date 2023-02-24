@@ -31,7 +31,7 @@ main (int argc, const char *argv[])
     {
       switch (rc)
         {
-        case '7':
+        case 7:
           {
             printf ("brady is a wanker\n");
           }
