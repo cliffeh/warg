@@ -10,4 +10,4 @@
 * some things to shore up:
   * printing help with null longopt
   * printing help with !isgraph() shortopt
-
+* allow for optional arguments?
