@@ -1,6 +1,7 @@
 #include "warg.h"
 
-#include <string.h>
+#include <ctype.h> // for isgraph()
+#include <string.h> // for strlen, strncmp
 
 #ifndef max
 #define max(a, b) ((a > b) ? a : b)
@@ -54,7 +55,7 @@ warg_opt_string (char *buf, const warg_opt *opt)
   else
     len += sprintf (p + len, "   ");
 
-  if(opt->longopt)
+  if (opt->longopt)
     len += sprintf (p + len, " --%s%s", opt->longopt, opt->argname ? "=" : "");
 
   if (opt->argname)
