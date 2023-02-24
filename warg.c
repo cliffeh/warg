@@ -17,7 +17,6 @@
 static const warg_opt *
 warg_find_longopt (const warg_opt *opts, const char *longoptname)
 { // note: longoptname may contain trailing =argument
-  char *p = 0;
   for (int i = 0; !AT_WARG_TABLE_END (opts[i]); i++)
     {
       // some opts might not have a long version

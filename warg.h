@@ -24,6 +24,10 @@
 #define WARG_MAX_OPT_STRING_LENGTH 30
 #endif
 
+#ifndef WARG_MAX_OPTS
+#define WARG_MAX_OPTS 1024
+#endif
+
 #ifndef WARG_MAX_EXTRA_ARGS
 #define WARG_MAX_EXTRA_ARGS 1024
 #endif
@@ -76,6 +80,7 @@ typedef struct warg_context
   int argc, curr, stop, ea;
   const char **argv;
   const char *ptr;
+  const void *defaults[WARG_MAX_OPTS];
   const char *extra_args[WARG_MAX_EXTRA_ARGS];
 } warg_context;
 

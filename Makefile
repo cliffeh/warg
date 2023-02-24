@@ -3,6 +3,7 @@ LIBRARY=warg.a
 OBJECTS=warg.o
 SOURCES=warg.c warg.h
 TESTDIR=tests
+CFLAGS=-Wall
 ACCEPT_TESTS=$(wildcard $(TESTDIR)/accept_*.opts)
 REJECT_TESTS=$(wildcard $(TESTDIR)/reject_*.opts)
 
@@ -38,7 +39,7 @@ help: ## Show this help
 .PHONY: help
 
 $(BINARY): warg-test.o $(LIBRARY)
-	$(CC) $(CFLAGS) -g $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@
 
 $(LIBRARY): $(OBJECTS)
 	$(AR) $(ARFLAGS) $@ $^
