@@ -8,3 +8,4 @@
   * alternative: put big bold red warning flags around warg_context "HERE BE TRANSPARENT DARGONS!"
 * ferret out and address TODOs in code comments...
 * github CI workflow (at least a basic `make check` before merge)
+* error message printing kind of sucks - make it moar betterer
