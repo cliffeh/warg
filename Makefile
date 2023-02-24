@@ -17,8 +17,7 @@ check: warg-test ## run unit tests (work in progress)
 .PHONY: check
 
 format: ## format all source files (requires: clang-format)
-	clang-format -i $(SOURCES)
-	make -C test format
+	clang-format -i $(SOURCES) warg-test.c
 .PHONY: format
 
 clean: ## clean up intermediate object files

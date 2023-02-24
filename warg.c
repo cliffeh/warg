@@ -1,6 +1,6 @@
 #include "warg.h"
 
-#include <ctype.h> // for isgraph()
+#include <ctype.h>  // for isgraph()
 #include <string.h> // for strlen, strncmp
 
 #ifndef max

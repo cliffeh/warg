@@ -53,7 +53,7 @@ main (int argc, const char *argv[])
           break;
         case 'K':
           {
-            printf("kangaroos: %i\n", kangaroos);
+            printf ("kangaroos: %i\n", kangaroos);
           }
         case 'o':
           {
