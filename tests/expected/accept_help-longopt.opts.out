@@ -1,10 +1,14 @@
 Usage: warg-test [OPTION...]
 Options:
+      --brady-is-a-wanker       just sayin'
   -I, --indent=NUM              indent NUM spaces; 0 implies compact formatting (default: 0)
   -i, --infile=FILE             read input from FILE; '-' to read from stdin (default: -)
+      --jumping-jacks=NUM       number of jumping jacks to do (default: 0)
+  -K KANGAROOS                  how many kangaroos are there? (default: 0)
   -o, --outfile=FILE            write output to FILE; '-' to write to stdout (default: -)
   -p, --prefix=STRING           prefix widget names with STRING
   -T, --this-is-a-really-absurdly-unnecessarily-long-flag-name
                                 set all of the doinklets to max frobulation
   -v, --verbose                 turn on verbose logging
+  -Z                            add some zazzle to the mix
   -?, --help                    show this help message and exit

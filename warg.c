@@ -49,17 +49,17 @@ warg_opt_string (char *buf, const warg_opt *opt)
   char tmp[1024];
   char *p = buf ? buf : tmp;
 
-  // TODO the below is probably not a great assumption; modify this so the
-  // option can have either or both there will always be a longopt, there may
-  // not always be a shortopt
-  if (opt->shortopt)
-    len += sprintf (p + len, "-%c, --%s", opt->shortopt, opt->longopt);
+  if (isgraph (opt->shortopt))
+    len += sprintf (p + len, "-%c%s", opt->shortopt, opt->longopt ? "," : "");
   else
-    len += sprintf (p + len, "    --%s", opt->longopt);
+    len += sprintf (p + len, "   ");
+
+  if(opt->longopt)
+    len += sprintf (p + len, " --%s%s", opt->longopt, opt->argname ? "=" : "");
 
   if (opt->argname)
     {
-      len += sprintf (p + len, "=%s", opt->argname);
+      len += sprintf (p + len, "%s%s", opt->longopt ? "" : " ", opt->argname);
     }
 
   return len;
