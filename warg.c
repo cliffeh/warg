@@ -67,17 +67,26 @@ warg_opt_string (char *buf, const warg_opt *opt)
 
 static int
 warg_set_argument (const warg_opt *opt, const char *arg)
-{
+{ // TODO check whether opt->store == 0
   switch (opt->type)
     {
     case WARG_TYPE_STRING:
       {
-        // TODO make sure the whole thing printed?
-        return sprintf (opt->store, "%s", arg);
+        if (!arg)
+          return sprintf (opt->store + strlen (opt->store), "%c", opt->shortopt);
+        else
+          // TODO make sure the whole thing printed?
+          return sprintf (opt->store, "%s", arg);
       }
       break;
     case WARG_TYPE_INT:
       {
+        if (!arg)
+          {
+            (*((int *)opt->store))++;
+            return 1;
+          }
+
         // we need a temporary pointer in case of error
         int len = 0, value = 0;
 
@@ -209,28 +218,9 @@ warg_next_option (warg_context *ctx)
               if (*ctx->ptr == '=')
                 return WARG_ERROR_UNEXPECTED_ARGUMENT;
 
-              // TODO collapse this logic into warg_set_argument?
               if (opt->store)
-                { // if storage has been provided but no argument is
-                  // required...
-                  switch (opt->type)
-                    {
-                    case WARG_TYPE_INT:
-                      { // default behavior: increment
-                        (*(int *)(opt->store))++;
-                      }
-                      break;
-                    case WARG_TYPE_STRING:
-                      { // default behavior: append shortopt (and
-                        // null-terminate)
-                        int len = strlen (((char *)(opt->store)));
-                        // TODO if shortopt hasn't been set, is this actually
-                        // the behavior we want?
-                        ((char *)(opt->store))[len] = opt->shortopt;
-                        ((char *)(opt->store))[len + 1] = 0;
-                      }
-                      // TODO default: toss an error for unknown types?
-                    }
+                { // storage has been provided but no argument is expected
+                  warg_set_argument (opt, 0);
                 }
               // advance curr, clear our pointer, and return
               ctx->curr++;
@@ -278,23 +268,7 @@ warg_next_option (warg_context *ctx)
               if (opt->store)
                 { // if storage has been provided but no argument is
                   // required...
-                  // TODO collapse this logic into warg_set_argument?
-                  switch (opt->type)
-                    {
-                    case WARG_TYPE_INT:
-                      { // default behavior: increment
-                        (*(int *)(opt->store))++;
-                      }
-                      break;
-                    case WARG_TYPE_STRING:
-                      { // default behavior: append shortopt (and
-                        // null-terminate)
-                        int len = strlen (((char *)(opt->store)));
-                        ((char *)(opt->store))[len] = opt->shortopt;
-                        ((char *)(opt->store))[len + 1] = 0;
-                      }
-                      // TODO default: toss an error for unknown types?
-                    }
+                  warg_set_argument (opt, 0);
                 }
               // advance our pointer, possibly meaning moving to the next arg
               if (!*(++ctx->ptr))
