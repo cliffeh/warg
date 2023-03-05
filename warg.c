@@ -1,6 +1,7 @@
 #include "warg.h"
 
-#include <ctype.h>  // for isgraph()
+#include <ctype.h>  // for isgraph
+#include <stdlib.h> // for calloc
 #include <string.h> // for strlen, strncmp
 
 #ifndef max
@@ -14,6 +15,16 @@
 #define IS_STOPOPT(p) (((*((p) + 0) == '-') && ((*((p) + 1) == '-')) && ((*((p) + 2) == 0))))
 #define IS_LONGOPT(p) (((*((p) + 0) == '-') && ((*((p) + 1) == '-')) && ((*((p) + 2) != 0))))
 #define IS_SHORTOPT(p) (((*((p) + 0) == '-') && ((*((p) + 1) != '-'))))
+
+typedef struct warg_context
+{
+  const char *progname;
+  const warg_opt *opts;
+  int argc, curr, stop, ea;
+  const char **argv;
+  const char *ptr;
+  const char *extra_args[WARG_MAX_EXTRA_ARGS];
+} warg_context;
 
 static const warg_opt *
 warg_find_longopt (const warg_opt *opts, const char *longoptname)
@@ -131,12 +142,14 @@ warg_set_argument (const warg_opt *opt, const char *arg)
     }
 }
 
-int
-warg_context_init (warg_context *ctx, const warg_opt *opts, int argc, const char *argv[])
+warg_context *
+warg_context_init (const warg_opt *opts, int argc, const char *argv[])
 {
   // TODO allow setting preamble/postable (for help string)
   // TODO use basename?
   // TODO allow setting progname explicitly?
+
+  warg_context *ctx = calloc (1, sizeof (warg_context));
 
   // find the last unescaped /
   int lastslash = 0, len = strlen (argv[0]);
@@ -162,7 +175,13 @@ warg_context_init (warg_context *ctx, const warg_opt *opts, int argc, const char
   ctx->ptr = 0;
 
   // TODO sanity checks? e.g., argc > max args?
-  return 0;
+  return ctx;
+}
+
+void
+warg_context_destroy (warg_context *ctx)
+{
+  free (ctx);
 }
 
 int

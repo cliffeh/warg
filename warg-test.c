@@ -7,7 +7,6 @@ main (int argc, const char *argv[])
   char infile[4096] = "-", outfile[4096] = "-", zazzle[4096] = "", prefix[4096] = { 0 };
   int indent = 0, max_frobulate = 0, verbose = 0, jumping_jacks = 0, kangaroos = 0, rc;
 
-  warg_context option_context;
   warg_opt option_table[]
       = { /* longopt, shortopt, argname, store, type, description */
           { "brady-is-a-wanker", 7, 0, 0, WARG_TYPE_STRING, "just sayin'" },
@@ -25,9 +24,14 @@ main (int argc, const char *argv[])
           WARG_TABLE_END
         };
 
-  warg_context_init (&option_context, option_table, argc, argv);
+  warg_context *option_context = warg_context_init (option_table, argc, argv);
+  if (!option_context)
+    {
+      fprintf (stderr, "error: could not initialize option parsing context\n");
+      exit (1);
+    }
 
-  while ((rc = warg_next_option (&option_context)) != WARG_OK)
+  while ((rc = warg_next_option (option_context)) != WARG_OK)
     {
       switch (rc)
         {
@@ -82,23 +86,30 @@ main (int argc, const char *argv[])
           break;
         case WARG_HELP_CHAR:
           {
-            warg_print_help (stdout, &option_context);
-            exit (0);
+            warg_print_help (stdout, option_context);
+            rc = 0;
+            goto cleanup;
           }
           break;
         default:
           {
-            warg_print_error (stderr, &option_context, rc);
-            exit (1);
+            warg_print_error (stderr, option_context, rc);
+            rc = 1;
+            goto cleanup;
           }
         }
     };
 
-  const char **extra_args = warg_extra_args (&option_context);
+  const char **extra_args = warg_extra_args (option_context);
   for (int i = 0; extra_args[i]; i++)
     {
       printf ("extra arg: %s\n", extra_args[i]);
     }
 
-  return 0;
+  rc = 0;
+
+cleanup:
+  warg_context_destroy (option_context);
+
+  return rc;
 }

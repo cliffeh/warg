@@ -6,6 +6,7 @@ TESTDIR=tests
 CFLAGS=-Wall
 ACCEPT_TESTS=$(wildcard $(TESTDIR)/accept_*.opts)
 REJECT_TESTS=$(wildcard $(TESTDIR)/reject_*.opts)
+TESTS=$(ACCEPT_TESTS) $(REJECT_TESTS)
 
 all: lib check ## build everything and run the test suite (default)
 
@@ -19,6 +20,10 @@ check: warg-test ## run unit tests (work in progress)
 format: ## format all source files (requires: clang-format)
 	clang-format -i $(SOURCES) warg-test.c
 .PHONY: format
+
+memcheck: ## test for memory leaks (requires: valgrind)
+	@tests/memcheck.test $(ACCEPT_TESTS)
+.PHONY: memcheck
 
 clean: ## clean up intermediate object files
 	rm -f $(OBJECTS) warg-test.o

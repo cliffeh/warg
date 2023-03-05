@@ -1,0 +1,38 @@
+#!/bin/bash
+
+DIR=$(dirname "$0")
+CMD="$DIR/../warg-test"
+
+color_red="$(tput setaf 1)"
+color_green="$(tput setaf 2)"
+color_cyan="$(tput setaf 6)"
+color_reset="$(tput sgr0)"
+
+which valgrind >&/dev/null || {
+  echo "MEMCHECK: ${color_cyan}SKIP${color_reset}"
+  exit 0
+} 
+
+VGCMD="valgrind --error-exitcode=3 --leak-check=full"
+
+failed_tests=""
+while [[ -n $1 ]]; do
+  test=$(basename "$1")
+  
+  # shellcheck disable=SC2046
+  if ${VGCMD} --log-file="$DIR/$filename.valgrind.log" "${CMD}" $(cat "$DIR/$test") >"$DIR/$filename.memcheck.log" 2>"$DIR/$filename.memcheck.err"; then
+    echo "MEMCHECK: $test: ${color_green}PASS${color_reset}"
+  else
+    failed_tests="$failed_tests $test"
+  fi
+  shift
+done
+
+# spit out failed tests at the end
+for test in $failed_tests; do
+  echo "MEMCHECK: $test: ${color_red}FAIL${color_reset}"
+done
+
+if [[ -n "$failed_tests" ]]; then
+  exit 1
+fi

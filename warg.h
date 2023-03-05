@@ -72,18 +72,10 @@ typedef struct warg_opt
   const char *description;
 } warg_opt;
 
-// TODO make opaque?
-typedef struct warg_context
-{
-  const char *progname;
-  const warg_opt *opts;
-  int argc, curr, stop, ea;
-  const char **argv;
-  const char *ptr;
-  const char *extra_args[WARG_MAX_EXTRA_ARGS];
-} warg_context;
+typedef struct warg_context warg_context;
 
-int warg_context_init (warg_context *ctx, const warg_opt *opts, int argc, const char *argv[]);
+warg_context *warg_context_init (const warg_opt *opts, int argc, const char *argv[]);
+void warg_context_destroy(warg_context *ctx);
 int warg_next_option (warg_context *ctx);
 const char *warg_current_option (warg_context *ctx);
 const char **warg_extra_args (warg_context *ctx);
