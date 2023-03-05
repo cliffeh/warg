@@ -30,7 +30,7 @@ clean: ## clean up intermediate object files
 .PHONY: clean
 
 testclean: ## clean up testing logs
-	rm -f $(TESTDIR)/*.diff $(TESTDIR)/*.err $(TESTDIR)/*.out
+	rm -f $(TESTDIR)/*.diff $(TESTDIR)/*.err $(TESTDIR)/*.log $(TESTDIR)/*.out
 
 realclean: clean testclean ## clean up *everything*
 	rm -f $(LIBRARY) $(BINARY)
