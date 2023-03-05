@@ -18,6 +18,7 @@
 
 typedef struct warg_context
 {
+  const warg_config *config;
   const char *progname;
   const warg_opt *opts;
   int argc, curr, stop, ea;
@@ -143,7 +144,7 @@ warg_set_argument (const warg_opt *opt, const char *arg)
 }
 
 warg_context *
-warg_context_init (const warg_opt *opts, int argc, const char *argv[])
+warg_context_init (const warg_opt *opts, const warg_config *config, int argc, const char *argv[])
 {
   // TODO allow setting preamble/postable (for help string)
   // TODO use basename?
@@ -151,15 +152,7 @@ warg_context_init (const warg_opt *opts, int argc, const char *argv[])
 
   warg_context *ctx = calloc (1, sizeof (warg_context));
 
-  // find the last unescaped /
-  int lastslash = 0, len = strlen (argv[0]);
-  for (int i = 0; i < len; i++)
-    {
-      if (argv[0][i] != '\\' && i + 1 < len && argv[0][i + 1] == '/')
-        lastslash = i + 2;
-    }
-
-  ctx->progname = argv[0] + lastslash;
+  ctx->progname = argv[0];
   ctx->opts = opts;
   ctx->argc = argc;
   ctx->argv = argv;

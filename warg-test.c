@@ -24,7 +24,7 @@ main (int argc, const char *argv[])
           WARG_TABLE_END
         };
 
-  warg_context *option_context = warg_context_init (option_table, argc, argv);
+  warg_context *option_context = warg_context_init (option_table, 0, argc, argv);
   if (!option_context)
     {
       fprintf (stderr, "error: could not initialize option parsing context\n");
