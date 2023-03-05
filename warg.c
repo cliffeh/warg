@@ -164,10 +164,6 @@ warg_context_init (const warg_opt *opts, int argc, const char *argv[])
   ctx->argc = argc;
   ctx->argv = argv;
 
-  for (int i = 0; i < ctx->ea; i++)
-    {
-      ctx->extra_args[i] = 0;
-    }
   ctx->ea = 0;
   ctx->stop = 0;
   // we want to start processing args after the program name
