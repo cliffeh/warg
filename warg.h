@@ -56,6 +56,9 @@
 #define AT_WARG_TABLE_END(opt)                                                                                         \
   (!(opt).longopt && !(opt).shortopt && !(opt).argname && !(opt).store && !(opt).description)
 
+#define WARG_DEFAULT_PREAMBLE "Usage: "
+#define WARG_DEFAULT_POSTAMBLE ""
+
 #ifdef PACKAGE_STRING
 #define WARG_AUTOHELP WARG_AUTOHELP_HELP, WARG_AUTOHELP_VERSION
 #else
@@ -74,8 +77,9 @@ typedef struct warg_opt
 
 typedef struct warg_config
 {
-  const char *preamble;
-  const char *postamble;
+  const char *progname;  // if unset will default to argv[0]
+  const char *preamble;  // everything leading up to - but not including - progname
+  const char *postamble; // everything coming after the options
 } warg_config;
 
 typedef struct warg_context warg_context;

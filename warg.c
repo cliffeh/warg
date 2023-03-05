@@ -19,7 +19,6 @@
 typedef struct warg_context
 {
   const warg_config *config;
-  const char *progname;
   const warg_opt *opts;
   int argc, curr, stop, ea;
   const char **argv;
@@ -152,7 +151,6 @@ warg_context_init (const warg_opt *opts, const warg_config *config, int argc, co
 
   warg_context *ctx = calloc (1, sizeof (warg_context));
 
-  ctx->progname = argv[0];
   ctx->opts = opts;
   ctx->argc = argc;
   ctx->argv = argv;
@@ -319,7 +317,8 @@ warg_print_help (FILE *out, warg_context *ctx)
 {
   char buf[1024];
   int longest = 0; // longest option string
-  fprintf (out, "Usage: %s [OPTION...]\n", ctx->progname);
+  // TODO respect config!
+  fprintf (out, "Usage: %s [OPTION...]\n", ctx->argv[0]);
   fprintf (out, "Options:\n");
 
   for (int i = 0; !AT_WARG_TABLE_END (ctx->opts[i]); i++)
