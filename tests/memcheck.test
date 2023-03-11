@@ -20,7 +20,7 @@ while [[ -n $1 ]]; do
   test=$(basename "$1")
   
   # shellcheck disable=SC2046
-  if ${VGCMD} --log-file="$DIR/$filename.valgrind.log" "${CMD}" $(cat "$DIR/$test") >"$DIR/$filename.memcheck.log" 2>"$DIR/$filename.memcheck.err"; then
+  if ${VGCMD} --log-file="$DIR/$test.memcheck.log" "${CMD}" $(cat "$DIR/$test") >"$DIR/$test.memcheck.out" 2>"$DIR/$test.memcheck.err"; then
     echo "MEMCHECK: $test: ${color_green}PASS${color_reset}"
   else
     failed_tests="$failed_tests $test"

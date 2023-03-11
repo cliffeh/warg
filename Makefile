@@ -12,7 +12,7 @@ all: lib check ## build everything and run the test suite (default)
 
 lib: $(LIBRARY) # build the warg library
 
-check: warg-test ## run unit tests (work in progress)
+check: $(BINARY) ## run unit tests (work in progress)
 	@tests/accept.test $(ACCEPT_TESTS)
 	@tests/reject.test $(REJECT_TESTS)
 .PHONY: check
@@ -21,7 +21,7 @@ format: ## format all source files (requires: clang-format)
 	clang-format -i $(SOURCES) warg-test.c
 .PHONY: format
 
-memcheck: ## test for memory leaks (requires: valgrind)
+memcheck: $(BINARY) ## test for memory leaks (requires: valgrind)
 	@tests/memcheck.test $(ACCEPT_TESTS)
 .PHONY: memcheck
 
