@@ -75,7 +75,7 @@ typedef struct warg_opt
 typedef struct warg_context warg_context;
 
 warg_context *warg_context_init (const warg_opt *opts, int argc, const char *argv[]);
-void warg_context_destroy(warg_context *ctx);
+void warg_context_destroy (warg_context *ctx);
 int warg_next_option (warg_context *ctx);
 const char *warg_current_option (warg_context *ctx);
 const char **warg_extra_args (warg_context *ctx);
